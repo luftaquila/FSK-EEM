@@ -1,0 +1,56 @@
+name: Release firmware
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+  
+jobs:
+  build:
+    name: Build FSK-EEM firmware
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: check toolchain cache
+        id: toolchain-cache
+        uses: actions/cache@v4
+        with:
+          path: toolchain/arm-none-eabi
+          key: arm-none-eabi
+
+      - name: download and extract toolchain
+        if: steps.toolchain-cache.outputs.cache-hit != 'true'
+        run: |
+          url="https://developer.arm.com/-/media/Files/downloads/gnu/13.2.rel1/binrel/arm-gnu-toolchain-13.2.rel1-x86_64-arm-none-eabi.tar.xz?rev=e434b9ea4afc4ed7998329566b764309&hash=CA590209F5774EE1C96E6450E14A3E26"
+          mkdir toolchain
+          curl -L $url | tar -xJf - -C toolchain
+          mv toolchain/`ls toolchain` toolchain/arm-none-eabi
+
+      - name: build firmware
+        run: |
+          cd device/firmware
+          make GCC_PATH=../../toolchain/arm-none-eabi/bin
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: firmware
+          path: device/firmware/build/firmware.*
+
+  release:
+    name: Release FSK-EEM firmware
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+      - id: changes
+        uses: simbo/changes-between-tags-action@v1
+      - uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true
+          artifacts: "firmware/firmware.*"
+          commit: ${{ github.sha }}
+          tag: ${{ github.ref_name }}
+          body: ${{ steps.changes.outputs.changes }}
