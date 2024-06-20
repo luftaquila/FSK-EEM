@@ -22,7 +22,7 @@
 #include "usbd_storage_if.h"
 
 /* USER CODE BEGIN INCLUDE */
-
+#include "user_diskio_spi.h"
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -105,8 +105,8 @@ const int8_t STORAGE_Inquirydata_FS[] = {/* 36 */
   0x00,
   0x00,
   0x00,
-  'S', 'T', 'M', ' ', ' ', ' ', ' ', ' ', /* Manufacturer : 8 bytes */
-  'P', 'r', 'o', 'd', 'u', 'c', 't', ' ', /* Product      : 16 Bytes */
+  'L', 'U', 'F', 'T', '-', 'A', 'Q', '.', /* Manufacturer : 8 bytes */
+  'F', 'S', 'K', '-', 'E', 'E', 'M', ' ', /* Product      : 16 Bytes */
   ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
   '0', '.', '0' ,'1'                      /* Version      : 4 Bytes */
 };
@@ -177,7 +177,11 @@ USBD_StorageTypeDef USBD_Storage_Interface_fops_FS =
 int8_t STORAGE_Init_FS(uint8_t lun)
 {
   /* USER CODE BEGIN 2 */
-  return (USBD_OK);
+  if (USER_SPI_initialize(0) != 0) {
+    return USBD_FAIL;
+  } else {
+    return USBD_OK;
+  }
   /* USER CODE END 2 */
 }
 
@@ -191,7 +195,9 @@ int8_t STORAGE_Init_FS(uint8_t lun)
 int8_t STORAGE_GetCapacity_FS(uint8_t lun, uint32_t *block_num, uint16_t *block_size)
 {
   /* USER CODE BEGIN 3 */
-  *block_num  = STORAGE_BLK_NBR;
+  DWORD cnt;
+  USER_SPI_ioctl(0, GET_SECTOR_COUNT, &cnt);
+  *block_num  = cnt;
   *block_size = STORAGE_BLK_SIZ;
   return (USBD_OK);
   /* USER CODE END 3 */
@@ -205,7 +211,11 @@ int8_t STORAGE_GetCapacity_FS(uint8_t lun, uint32_t *block_num, uint16_t *block_
 int8_t STORAGE_IsReady_FS(uint8_t lun)
 {
   /* USER CODE BEGIN 4 */
-  return (USBD_OK);
+  if (USER_SPI_status(0) != 0) {
+    return USBD_FAIL;
+  } else {
+    return USBD_OK;
+  }
   /* USER CODE END 4 */
 }
 
@@ -229,7 +239,11 @@ int8_t STORAGE_IsWriteProtected_FS(uint8_t lun)
 int8_t STORAGE_Read_FS(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t blk_len)
 {
   /* USER CODE BEGIN 6 */
-  return (USBD_OK);
+  if (USER_SPI_read(0, buf, blk_addr, blk_len) != 0) {
+    return USBD_FAIL;
+  } else {
+    return USBD_OK;
+  }
   /* USER CODE END 6 */
 }
 
@@ -241,7 +255,11 @@ int8_t STORAGE_Read_FS(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t bl
 int8_t STORAGE_Write_FS(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t blk_len)
 {
   /* USER CODE BEGIN 7 */
-  return (USBD_OK);
+  if (USER_SPI_write(0, buf, blk_addr, blk_len) != 0) {
+    return USBD_FAIL;
+  } else {
+    return USBD_OK;
+  }
   /* USER CODE END 7 */
 }
 
