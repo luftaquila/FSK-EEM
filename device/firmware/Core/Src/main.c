@@ -61,7 +61,10 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+int _write(int file, uint8_t *ptr, int len) {
+  HAL_UART_Transmit(&UART_DEBUG, (uint8_t *)ptr, (uint16_t)len, 30);
+  return (len);
+}
 /* USER CODE END 0 */
 
 /**

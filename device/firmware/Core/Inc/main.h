@@ -31,7 +31,7 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "types.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -75,7 +75,7 @@ void Error_Handler(void);
 #define SD_CS_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
-
+#define SD_SPI_HANDLE SPI_SD
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
