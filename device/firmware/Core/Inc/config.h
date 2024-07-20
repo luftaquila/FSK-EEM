@@ -18,7 +18,8 @@ extern char debug_buffer[];
 #ifdef DEBUG_MODE
 #define DEBUG_MSG(fmt, ...)                                                    \
   sprintf(debug_buffer, fmt, ##__VA_ARGS__);                                   \
-  CDC_Transmit(0, (uint8_t *)debug_buffer, strlen(debug_buffer));
+  CDC_Transmit(0, (uint8_t *)debug_buffer, strlen(debug_buffer));              \
+  HAL_Delay(10); // TODO: implement buffer instead of wait
 #else
 #define DEBUG_MSG(fmt, ...)
 #endif

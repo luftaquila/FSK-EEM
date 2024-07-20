@@ -21,10 +21,10 @@
 #include "adc.h"
 #include "can.h"
 #include "fatfs.h"
+#include "ff.h"
 #include "rtc.h"
 #include "sdio.h"
 #include "spi.h"
-#include "stm32f4xx_hal_gpio.h"
 #include "tim.h"
 #include "usb_device.h"
 #include "usb_otg.h"
@@ -182,8 +182,14 @@ void Error_Handler(void)
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
   __disable_irq();
-  while (1)
-  {
+
+  HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
+
+  while (1) {
+    HAL_GPIO_TogglePin(LED0_GPIO_Port, LED0_Pin);
+    HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
+    HAL_Delay(500);
   }
   /* USER CODE END Error_Handler_Debug */
 }
