@@ -50,7 +50,13 @@ void MX_SDIO_SD_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN SDIO_Init 2 */
-
+  /* set sdio 4 bit wide bus after initialization
+   * https://community.st.com/t5/stm32cubemx-mcus/sdio-interface-not-working-in-4bits-with-stm32f4-firmware/td-p/591776
+   */
+  if (HAL_SD_ConfigWideBusOperation(&hsd, SDIO_BUS_WIDE_4B) != HAL_OK)
+  {
+    Error_Handler();
+  }
   /* USER CODE END SDIO_Init 2 */
 
 }

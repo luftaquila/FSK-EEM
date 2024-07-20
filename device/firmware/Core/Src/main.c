@@ -24,6 +24,7 @@
 #include "rtc.h"
 #include "sdio.h"
 #include "spi.h"
+#include "stm32f4xx_hal_gpio.h"
 #include "tim.h"
 #include "usb_device.h"
 #include "usb_otg.h"
@@ -105,6 +106,10 @@ int main(void)
   MX_FATFS_Init();
   /* USER CODE BEGIN 2 */
   MX_USB_DEVICE_Init();
+
+  // turn off LED0 and LED1
+  HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET);
   /* USER CODE END 2 */
 
   /* Infinite loop */

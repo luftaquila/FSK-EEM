@@ -6,6 +6,9 @@
 
 #include "usbd_cdc_acm_if.h"
 
+/******************************************************************************
+ * debug serial configuration
+ */
 #define DEBUG_MODE
 #define MAX_LEN_DEBUG_STR 256
 
@@ -19,5 +22,9 @@ extern char debug_buffer[];
 #else
 #define DEBUG_MSG(fmt, ...)
 #endif
+
+/******************************************************************************
+ * peripheral configuration
+ */
 
 #endif /* CORE_INC_CONFIG_H */
