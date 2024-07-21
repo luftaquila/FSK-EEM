@@ -26,6 +26,7 @@
 #include "rtc.h"
 #include "sdio.h"
 #include "spi.h"
+#include "stm32f4xx_hal_gpio.h"
 #include "tim.h"
 #include "usart.h"
 #include "usb_device.h"
@@ -33,7 +34,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "config.h"
+#include "energymeter.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -109,9 +110,18 @@ int main(void)
   MX_USB_DEVICE_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-  // turn off LED0 and LED1
+  // reset LEDs
   HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin, GPIO_PIN_SET);
   HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET);
+
+  // switch mode on boot by USB_SENSE
+  if (HAL_GPIO_ReadPin(USB_SENSE_GPIO_Port, USB_SENSE_Pin) == GPIO_PIN_RESET) {
+    mode_energymeter();
+  } else {
+    mode_usb();
+  }
+
+  // NEVER passes beyond here
   /* USER CODE END 2 */
 
   /* Infinite loop */
