@@ -2,7 +2,7 @@
 /**
   ******************************************************************************
   * @file           : usbd_cdc_if.h
-  * @version        : v1.0_Cube
+  * @version        : v2.0_Cube
   * @brief          : Header for usbd_cdc_if.c file.
   ******************************************************************************
   * @attention
@@ -48,8 +48,8 @@
   * @{
   */
 /* Define size for the receive and transmit buffer over CDC */
-#define APP_RX_DATA_SIZE  2048
-#define APP_TX_DATA_SIZE  2048
+#define APP_RX_DATA_SIZE  1024
+#define APP_TX_DATA_SIZE  1024
 /* USER CODE BEGIN EXPORTED_DEFINES */
 
 /* USER CODE END EXPORTED_DEFINES */
