@@ -20,7 +20,6 @@
 #include "main.h"
 #include "adc.h"
 #include "crc.h"
-#include "dma.h"
 #include "fatfs.h"
 #include "rtc.h"
 #include "spi.h"
@@ -95,7 +94,6 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_DMA_Init();
   MX_ADC1_Init();
   MX_CRC_Init();
   MX_RTC_Init();
@@ -106,7 +104,6 @@ int main(void)
   MX_FATFS_Init();
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
-  HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
   /* USER CODE END 2 */
 
   /* Infinite loop */

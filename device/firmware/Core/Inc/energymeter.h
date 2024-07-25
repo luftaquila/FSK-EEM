@@ -5,8 +5,6 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "usbd_cdc_if.h"
-
 /******************************************************************************
  * debug serial configuration
  */
@@ -28,6 +26,9 @@ extern char debug_buffer[];
 /******************************************************************************
  * peripheral configuration
  */
+#define UART_CONS  huart1
+#define SPI_SD     hspi1
+#define SPI_RF     hspi2
 
 
 /******************************************************************************
