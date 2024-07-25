@@ -61,6 +61,28 @@ void Error_Handler(void);
 #define LED_GPIO_Port GPIOC
 #define USB_SENSE_Pin GPIO_PIN_14
 #define USB_SENSE_GPIO_Port GPIOC
+#define AIN_HV_VOLTAGE_Pin GPIO_PIN_0
+#define AIN_HV_VOLTAGE_GPIO_Port GPIOA
+#define AIN_HV_CURRENT_Pin GPIO_PIN_1
+#define AIN_HV_CURRENT_GPIO_Port GPIOA
+#define AIN_LV_VOLTAGE_Pin GPIO_PIN_2
+#define AIN_LV_VOLTAGE_GPIO_Port GPIOA
+#define RF_SCK_Pin GPIO_PIN_13
+#define RF_SCK_GPIO_Port GPIOB
+#define RF_MISO_Pin GPIO_PIN_14
+#define RF_MISO_GPIO_Port GPIOB
+#define RF_MOSI_Pin GPIO_PIN_15
+#define RF_MOSI_GPIO_Port GPIOB
+#define CONS_TX_Pin GPIO_PIN_9
+#define CONS_TX_GPIO_Port GPIOA
+#define CONS_RX_Pin GPIO_PIN_10
+#define CONS_RX_GPIO_Port GPIOA
+#define SD_SCK_Pin GPIO_PIN_3
+#define SD_SCK_GPIO_Port GPIOB
+#define SD_MISO_Pin GPIO_PIN_4
+#define SD_MISO_GPIO_Port GPIOB
+#define SD_MOSI_Pin GPIO_PIN_5
+#define SD_MOSI_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 
