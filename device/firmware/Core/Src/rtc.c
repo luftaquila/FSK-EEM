@@ -21,7 +21,22 @@
 #include "rtc.h"
 
 /* USER CODE BEGIN 0 */
+void rtc_read(datetime *time) {
+  RTC_DateTypeDef rtc_date;
+  RTC_TimeTypeDef rtc_time;
 
+  HAL_RTC_GetTime(&hrtc, &rtc_time, FORMAT_BIN);
+  HAL_RTC_GetDate(&hrtc, &rtc_date, FORMAT_BIN);
+
+  time->second = rtc_time.Seconds;
+  time->minute = rtc_time.Minutes;
+  time->hour = rtc_time.Hours;
+  time->day = rtc_date.Date;
+  time->month = rtc_date.Month;
+  time->year = rtc_date.Year;
+
+  return;
+}
 /* USER CODE END 0 */
 
 RTC_HandleTypeDef hrtc;
@@ -52,14 +67,18 @@ void MX_RTC_Init(void)
   }
 
   /* USER CODE BEGIN Check_RTC_BKUP */
+  if (HAL_RTCEx_BKUPRead(&hrtc, RTC_BKP_DR10) == 0xBEEF) {
+    return;
+  }
 
+  HAL_RTCEx_BKUPWrite(&hrtc, RTC_BKP_DR10, 0xBEEF);
   /* USER CODE END Check_RTC_BKUP */
 
   /** Initialize RTC and set the Time and Date
   */
-  sTime.Hours = 0x0;
-  sTime.Minutes = 0x0;
-  sTime.Seconds = 0x0;
+  sTime.Hours = 0x12;
+  sTime.Minutes = 0x34;
+  sTime.Seconds = 0x56;
 
   if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BCD) != HAL_OK)
   {
@@ -68,7 +87,7 @@ void MX_RTC_Init(void)
   DateToUpdate.WeekDay = RTC_WEEKDAY_WEDNESDAY;
   DateToUpdate.Month = RTC_MONTH_MAY;
   DateToUpdate.Date = 0x12;
-  DateToUpdate.Year = 0x0;
+  DateToUpdate.Year = 0x99;
 
   if (HAL_RTC_SetDate(&hrtc, &DateToUpdate, RTC_FORMAT_BCD) != HAL_OK)
   {

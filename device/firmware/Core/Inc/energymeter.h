@@ -1,5 +1,5 @@
-#ifndef CORE_INC_CONFIG_H
-#define CORE_INC_CONFIG_H
+#ifndef CORE_INC_ENERGYMETER_H
+#define CORE_INC_ENERGYMETER_H
 
 #include <stdio.h>
 #include <stdint.h>
@@ -33,7 +33,7 @@ extern char debug_buffer[];
 /******************************************************************************
  * function prototypes
  */
-void mode_usb(void);
 void mode_energymeter(void);
+void mode_usb(void);
 
-#endif /* CORE_INC_CONFIG_H */
+#endif /* CORE_INC_ENERGYMETER_H */
