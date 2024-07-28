@@ -1,13 +1,29 @@
-#include "main.h"
 #include "diskio.h"
 #include "ff.h"
 #include "rtc.h"
+#include "tim.h"
 
 #include "energymeter.h"
+#include "main.h"
+#include "ringbuffer.h"
 
+/* boot time from the start of the month in millisecond */
+uint32_t boot_time;
+
+/* SD card write buffer */
+ring_buffer_t sd_buffer;
+uint8_t sd_buffer_arr[1 << 10]; // 1KB
+
+/* RF transmit buffer */
+ring_buffer_t rf_buffer;
+uint8_t rf_buffer_arr[1 << 10]; // 1KB
+
+/* USB CDC debug print buffer */
 char debug_buffer[MAX_LEN_DEBUG_STR];
 
+
 void mode_energymeter(void) {
+  /* read boot time */
   datetime boot;
   rtc_read(&boot);
 
@@ -15,38 +31,45 @@ void mode_energymeter(void) {
   sprintf(path, "20%02d-%02d-%02d-%02d-%02d-%02d.log", boot.year, boot.month,
           boot.day, boot.hour, boot.minute, boot.second);
 
-  DEBUG_MSG("%s\n", path);
+  boot_time = boot.day * 86400000 + boot.hour * 3600000 + boot.minute * 60000 +
+              boot.second * 1000;
 
+
+  /* init ring buffers */
+  ring_buffer_init(&sd_buffer, (char *)sd_buffer_arr, sizeof(sd_buffer_arr));
+  ring_buffer_init(&rf_buffer, (char *)rf_buffer_arr, sizeof(rf_buffer_arr));
+
+
+  /* init telemetry */
+  #if RF_ENABLED
+    // TODO
+  #endif
+
+
+  /* init fatfs and log file */
   FATFS fat;
+
+  if (f_mount(&fat, "", 1) != FR_OK) {
+    Error_Handler();
+  }
+
   FIL fp;
 
-  disk_initialize((BYTE)0);
+  if (f_open(&fp, path, FA_CREATE_ALWAYS | FA_WRITE) != FR_OK) {
+    Error_Handler();
+  };
 
-  DEBUG_MSG("disk init\n");
 
-  int ret = f_mount(&fat, "", 1);
+  /* start 100ms timer */
+  HAL_TIM_Base_Start_IT(&TIMER_100ms);
 
-  DEBUG_MSG("mount: %d\n", ret);
-
-  ret = f_open(&fp, path, FA_CREATE_ALWAYS | FA_WRITE);
-
-  DEBUG_MSG("open: %d\n", ret);
-
-  UINT a;
-
-  ret = f_write(&fp, "hihello", 7, &a);
-
-  DEBUG_MSG("write: %d, %d\n", ret, a);
-
-  ret = f_close(&fp);
-
-  DEBUG_MSG("close: %d\n", ret);
 
   while (1) {
     HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
     HAL_Delay(500);
   }
 }
+
 
 void mode_usb(void) {
   while (1) {
