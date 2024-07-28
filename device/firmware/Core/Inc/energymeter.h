@@ -8,8 +8,11 @@
 
 #include "usbd_cdc_if.h"
 
-#define TRUE 1
-#define FALSE 0
+/******************************************************************************
+ * basic definitions
+ *****************************************************************************/
+#define TRUE (1)
+#define FALSE (0)
 
 #define BIT_SET(target, pos) ((target) |= (1 << (pos)))
 #define BIT_CLEAR(target, pos) ((target) &= ~(1 << (pos)))
@@ -24,12 +27,14 @@
 /******************************************************************************
  * module error configuration
  *****************************************************************************/
-extern uint32_t error_status;
+extern uint8_t error_status;
 
+// max 8 entries
 typedef enum {
   EEM_NO_ERROR,
   EEM_ERR_INVALID_ID,
   EEM_ERR_SD_CARD,
+  EEM_ERR_HARDFAULT,
 } error_type_t;
 
 /******************************************************************************
@@ -37,7 +42,7 @@ typedef enum {
  *****************************************************************************/
 extern uint32_t boot_time;
 
-// flash page 63, PM0075 Table 3. Flash module organization
+// flash page 63, PM0075 Table 3. Flash module organization (medium density)
 #define FLASH_TARGET_PAGE 0x0800FC00
 #define FLASH_CANARY_DEVICE_ID 0xBADACAFE
 
@@ -50,6 +55,8 @@ typedef struct {
 #define DEVICE_ID_INVALID 0xFFFF;
 #define DEVICE_ID_BROADCAST 0xFFFE;
 
+/* log format definitions */
+// max 8 entries
 typedef enum {
   LOG_TYPE_REPORT,  // 10Hz HV / LV report
   LOG_TYPE_EVENT,   // instant event record
@@ -73,8 +80,9 @@ typedef struct {
 } log_item_command_t;
 
 typedef struct {
-  uint32_t error_time; // error event time
-  uint16_t _reserved;  // reserved for future use
+  uint32_t time;     // latest error event time
+  uint8_t status;    // all present error status
+  uint8_t _reserved; // reserved for future use
 } log_item_error_t;
 
 typedef struct {
@@ -87,10 +95,11 @@ typedef struct {
   } payload;         // 6 byte log payload
   uint8_t type;      // log type
   uint8_t _reserved; // reserved for future use
-  uint16_t id;       // my device id
+  uint16_t id;       // device id
   uint16_t checksum; // CRC-16 checksum
 } log_item_t;
 
+/* remote command definitions */
 typedef struct {
   uint16_t target; // target device id
   union {
@@ -133,7 +142,7 @@ static inline void debug_print(const char *fmt, ...) {
   vsprintf(debug_buffer, fmt, args);
 
   CDC_Transmit_FS((uint8_t *)debug_buffer, strlen(debug_buffer));
-  HAL_Delay(10); // TODO: implement buffer instead of busy waiting
+  HAL_Delay(10); // just busy wait a bit
 }
 
 #define DEBUG_MSG(fmt, ...) debug_print(fmt, ##__VA_ARGS__)

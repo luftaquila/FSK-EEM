@@ -24,7 +24,7 @@ uint8_t rf_buffer_arr[1 << 10]; // 1KB
 uint32_t device_id = DEVICE_ID_INVALID;
 
 /* ERROR STATUS */
-uint32_t error_status = EEM_NO_ERROR;
+uint8_t error_status = EEM_NO_ERROR;
 
 /* USB CDC debug print buffer */
 char debug_buffer[MAX_LEN_DEBUG_STR];
@@ -75,10 +75,6 @@ void mode_energymeter(void) {
   if (f_open(&fp, path, FA_CREATE_ALWAYS | FA_WRITE) != FR_OK) {
     BIT_SET(error_status, EEM_ERR_SD_CARD);
   };
-
-  UINT a;
-  f_write(&fp, "devid", 5, &a);
-  f_close(&fp);
 
   /* start 100ms timer */
   HAL_TIM_Base_Start_IT(&TIMER_100ms);
