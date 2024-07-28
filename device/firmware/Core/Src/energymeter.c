@@ -2,15 +2,12 @@
 #include "diskio.h"
 #include "ff.h"
 #include "rtc.h"
-#include <string.h>
 
-#include "usbd_cdc_if.h"
+#include "energymeter.h"
 
 char debug_buffer[MAX_LEN_DEBUG_STR];
 
 void mode_energymeter(void) {
-  HAL_Delay(5000);
-
   datetime boot;
   rtc_read(&boot);
 

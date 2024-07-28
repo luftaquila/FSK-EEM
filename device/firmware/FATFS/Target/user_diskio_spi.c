@@ -132,7 +132,7 @@ void xmit_spi_multi (
 	UINT btx			/* Number of bytes to send (even number) */
 )
 {
-	HAL_SPI_Transmit(&SD_SPI_HANDLE, buff, btx, HAL_MAX_DELAY);
+	HAL_SPI_Transmit(&SD_SPI_HANDLE, (BYTE *)buff, btx, HAL_MAX_DELAY);
 }
 #endif
 

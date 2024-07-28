@@ -32,7 +32,6 @@ extern "C" {
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "types.h"
-#include "energymeter.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
