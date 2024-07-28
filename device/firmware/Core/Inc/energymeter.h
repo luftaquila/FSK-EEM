@@ -17,6 +17,18 @@
 #define DEBUG_ENABLED  TRUE
 #define RF_ENABLED     FALSE
 
+extern uint32_t boot_time;
+
+/******************************************************************************
+ * module error configuration
+ */
+extern uint32_t error_status;
+
+typedef enum {
+  EEM_NO_ERROR,
+  EEM_ERR_SD,
+} error_type_t;
+
 
 /******************************************************************************
  * logger configuration
@@ -25,6 +37,7 @@ typedef enum {
   LOG_TYPE_REPORT,  // 10Hz HV / LV report 
   LOG_TYPE_EVENT,   // instant event record
   LOG_TYPE_COMMAND, // device id / rtc set cmd
+  LOG_TYPE_ERROR,   // device error status
 } log_type_t;
 
 typedef struct {
@@ -34,7 +47,7 @@ typedef struct {
 } log_item_report_t;
 
 typedef struct {
-  char msg[6]; // instant event message string
+  char msg[6];      // instant event message string
 } log_item_event_t;
 
 typedef struct {
@@ -43,25 +56,33 @@ typedef struct {
 } log_item_command_t;
 
 typedef struct {
-  uint32_t time;    // millisecond eslaped from the start of the boot month
+  uint32_t error_time; // error event time
+  uint16_t _reserved;  // reserved for future use
+} log_item_error_t;
+
+typedef struct {
+  uint32_t time;      // millisecond eslaped from the start of the boot month
   union {
     log_item_report_t  log_item_report;
     log_item_event_t   log_item_event;
     log_item_command_t log_item_command;
+    log_item_error_t   log_item_error;
   } payload;          // 6 byte log payload
-  uint16_t id;      // my device id
-  uint8_t type;     // log type
-  uint8_t checksum; // CRC-8 checksum
+  uint8_t type;       // log type
+  uint8_t _reserved;  // reserved for future use
+  uint16_t id;        // my device id
+  uint16_t checksum;  // CRC-16 checksum
 } log_item_t;
 
 typedef struct {
-  uint16_t target;  // target device id
+  uint16_t target;   // target device id
   union {
     log_item_event_t   log_item_event;
     log_item_command_t log_item_command;
-  } payload;          // remote command payload
-  uint8_t type;     // log type
-  uint8_t checksum; // CRC-8 checksum
+  } payload;         // remote command payload
+  uint8_t type;      // log type
+  uint8_t _reserved; // reserved for future use
+  uint16_t checksum; // CRC-16 checksum
 } remote_cmd_t;
 
 /******************************************************************************

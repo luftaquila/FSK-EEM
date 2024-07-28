@@ -24,6 +24,7 @@
 #include "fatfs.h"
 #include "rtc.h"
 #include "spi.h"
+#include "stm32f1xx_hal.h"
 #include "tim.h"
 #include "usart.h"
 #include "usb_device.h"
@@ -32,6 +33,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "energymeter.h"
+#include <stdint.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -189,11 +191,19 @@ void SystemClock_Config(void)
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
+  #if RF_ENABLED
+  uint32_t error_time = boot_time + HAL_GetTick();
+  #endif
+
   while (1) {
     HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
     HAL_Delay(100);
+
+    #if RF_ENABLED
+      // TODO
+    #endif
   }
+
   __disable_irq();
   /* USER CODE END Error_Handler_Debug */
 }

@@ -18,6 +18,9 @@ uint8_t sd_buffer_arr[1 << 10]; // 1KB
 ring_buffer_t rf_buffer;
 uint8_t rf_buffer_arr[1 << 10]; // 1KB
 
+/* ERROR STATUS */
+uint32_t error_status = EEM_NO_ERROR;
+
 /* USB CDC debug print buffer */
 char debug_buffer[MAX_LEN_DEBUG_STR];
 
@@ -50,12 +53,14 @@ void mode_energymeter(void) {
   FATFS fat;
 
   if (f_mount(&fat, "", 1) != FR_OK) {
+    error_status = EEM_ERR_SD;
     Error_Handler();
   }
 
   FIL fp;
 
   if (f_open(&fp, path, FA_CREATE_ALWAYS | FA_WRITE) != FR_OK) {
+    error_status = EEM_ERR_SD;
     Error_Handler();
   };
 
