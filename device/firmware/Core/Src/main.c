@@ -24,7 +24,6 @@
 #include "fatfs.h"
 #include "rtc.h"
 #include "spi.h"
-#include "stm32f1xx_hal.h"
 #include "tim.h"
 #include "usart.h"
 #include "usb_device.h"
@@ -196,7 +195,7 @@ void Error_Handler(void)
   #endif
 
   while (1) {
-    HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+    HAL_GPIO_TogglePin(LED_STATUS_GPIO_Port, LED_STATUS_Pin);
     HAL_Delay(100);
 
     #if RF_ENABLED

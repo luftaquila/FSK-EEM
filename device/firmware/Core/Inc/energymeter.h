@@ -33,6 +33,11 @@ typedef enum {
 /******************************************************************************
  * logger configuration
  */
+#define FLASH_CANARY_DEVICE_ID 0xBADACAFE;
+
+#define DEVICE_ID_INVALID      0xFFFF;
+#define DEVICE_ID_BROADCAST    0xFFFE;
+
 typedef enum {
   LOG_TYPE_REPORT,  // 10Hz HV / LV report 
   LOG_TYPE_EVENT,   // instant event record

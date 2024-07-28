@@ -57,10 +57,12 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define LED_Pin GPIO_PIN_13
-#define LED_GPIO_Port GPIOC
-#define USB_SENSE_Pin GPIO_PIN_14
-#define USB_SENSE_GPIO_Port GPIOC
+#define LED_STATUS_Pin GPIO_PIN_13
+#define LED_STATUS_GPIO_Port GPIOC
+#define LED_SD_Pin GPIO_PIN_14
+#define LED_SD_GPIO_Port GPIOC
+#define LED_RF_Pin GPIO_PIN_15
+#define LED_RF_GPIO_Port GPIOC
 #define AIN_HV_VOLTAGE_Pin GPIO_PIN_0
 #define AIN_HV_VOLTAGE_GPIO_Port GPIOA
 #define AIN_HV_CURRENT_Pin GPIO_PIN_1
@@ -85,6 +87,8 @@ void Error_Handler(void);
 #define SD_MOSI_GPIO_Port GPIOB
 #define SD_CS_Pin GPIO_PIN_6
 #define SD_CS_GPIO_Port GPIOB
+#define USB_SENSE_Pin GPIO_PIN_9
+#define USB_SENSE_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 #define SD_SPI_HANDLE SPI_SD

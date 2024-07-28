@@ -54,14 +54,12 @@ void mode_energymeter(void) {
 
   if (f_mount(&fat, "", 1) != FR_OK) {
     error_status = EEM_ERR_SD;
-    Error_Handler();
   }
 
   FIL fp;
 
   if (f_open(&fp, path, FA_CREATE_ALWAYS | FA_WRITE) != FR_OK) {
     error_status = EEM_ERR_SD;
-    Error_Handler();
   };
 
 
@@ -70,7 +68,7 @@ void mode_energymeter(void) {
 
 
   while (1) {
-    HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+    HAL_GPIO_TogglePin(LED_STATUS_GPIO_Port, LED_STATUS_Pin);
     HAL_Delay(500);
   }
 }
@@ -78,7 +76,7 @@ void mode_energymeter(void) {
 
 void mode_usb(void) {
   while (1) {
-    HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+    HAL_GPIO_TogglePin(LED_STATUS_GPIO_Port, LED_STATUS_Pin);
     HAL_Delay(1000);
   }
 }
