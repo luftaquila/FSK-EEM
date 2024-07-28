@@ -11,53 +11,65 @@
 #define TRUE 1
 #define FALSE 0
 
+#define BIT_SET(target, pos) ((target) |= (1 << (pos)))
+#define BIT_CLEAR(target, pos) ((target) &= ~(1 << (pos)))
+#define BIT_TOGGLE(target, pos) ((target) ^= (1 << (pos)))
+
 /******************************************************************************
  * module configuration
- */
-#define DEBUG_ENABLED  TRUE
-#define RF_ENABLED     FALSE
-
-extern uint32_t boot_time;
+ *****************************************************************************/
+#define DEBUG_ENABLED TRUE
+#define RF_ENABLED FALSE
 
 /******************************************************************************
  * module error configuration
- */
+ *****************************************************************************/
 extern uint32_t error_status;
 
 typedef enum {
   EEM_NO_ERROR,
-  EEM_ERR_SD,
+  EEM_ERR_INVALID_ID,
+  EEM_ERR_SD_CARD,
 } error_type_t;
-
 
 /******************************************************************************
  * logger configuration
- */
-#define FLASH_CANARY_DEVICE_ID 0xBADACAFE;
+ *****************************************************************************/
+extern uint32_t boot_time;
 
-#define DEVICE_ID_INVALID      0xFFFF;
-#define DEVICE_ID_BROADCAST    0xFFFE;
+// flash page 63, PM0075 Table 3. Flash module organization
+#define FLASH_TARGET_PAGE 0x0800FC00
+#define FLASH_CANARY_DEVICE_ID 0xBADACAFE
+
+typedef struct {
+  uint32_t canary;
+  uint32_t id;
+} device_id_t;
+
+/* reserved device ids */
+#define DEVICE_ID_INVALID 0xFFFF;
+#define DEVICE_ID_BROADCAST 0xFFFE;
 
 typedef enum {
-  LOG_TYPE_REPORT,  // 10Hz HV / LV report 
+  LOG_TYPE_REPORT,  // 10Hz HV / LV report
   LOG_TYPE_EVENT,   // instant event record
   LOG_TYPE_COMMAND, // device id / rtc set cmd
   LOG_TYPE_ERROR,   // device error status
 } log_type_t;
 
 typedef struct {
-  uint16_t hv_v;    // HV bus voltage
-  uint16_t hv_c;    // HV bus current
-  uint16_t lv_v;    // LV bus voltage
+  uint16_t hv_v; // HV bus voltage
+  uint16_t hv_c; // HV bus current
+  uint16_t lv_v; // LV bus voltage
 } log_item_report_t;
 
 typedef struct {
-  char msg[6];      // instant event message string
+  char msg[6]; // instant event message string
 } log_item_event_t;
 
 typedef struct {
-  uint16_t id;      // new device id
-  uint32_t time;    // RTC time fix
+  uint16_t id;   // new device id
+  uint32_t time; // RTC time fix
 } log_item_command_t;
 
 typedef struct {
@@ -66,23 +78,23 @@ typedef struct {
 } log_item_error_t;
 
 typedef struct {
-  uint32_t time;      // millisecond eslaped from the start of the boot month
+  uint32_t time; // millisecond eslaped from the start of the boot month
   union {
-    log_item_report_t  log_item_report;
-    log_item_event_t   log_item_event;
+    log_item_report_t log_item_report;
+    log_item_event_t log_item_event;
     log_item_command_t log_item_command;
-    log_item_error_t   log_item_error;
-  } payload;          // 6 byte log payload
-  uint8_t type;       // log type
-  uint8_t _reserved;  // reserved for future use
-  uint16_t id;        // my device id
-  uint16_t checksum;  // CRC-16 checksum
+    log_item_error_t log_item_error;
+  } payload;         // 6 byte log payload
+  uint8_t type;      // log type
+  uint8_t _reserved; // reserved for future use
+  uint16_t id;       // my device id
+  uint16_t checksum; // CRC-16 checksum
 } log_item_t;
 
 typedef struct {
-  uint16_t target;   // target device id
+  uint16_t target; // target device id
   union {
-    log_item_event_t   log_item_event;
+    log_item_event_t log_item_event;
     log_item_command_t log_item_command;
   } payload;         // remote command payload
   uint8_t type;      // log type
@@ -92,12 +104,13 @@ typedef struct {
 
 /******************************************************************************
  * telemetry configuration
- */
-
+ *****************************************************************************/
 
 /******************************************************************************
  * peripheral configuration
- */
+ *****************************************************************************/
+extern TIM_HandleTypeDef htim1;
+
 #define TIMER_100ms htim1
 
 #define UART_CONS huart1
@@ -105,10 +118,9 @@ typedef struct {
 #define SPI_SD hspi1
 #define SPI_RF hspi2
 
-
 /******************************************************************************
  * debug configuration
- */
+ *****************************************************************************/
 #define MAX_LEN_DEBUG_STR 256
 
 extern char debug_buffer[];
@@ -129,10 +141,9 @@ static inline void debug_print(const char *fmt, ...) {
 #define DEBUG_MSG(fmt, ...)
 #endif
 
-
 /******************************************************************************
  * function prototypes
- */
+ *****************************************************************************/
 void mode_energymeter(void);
 void mode_usb(void);
 
