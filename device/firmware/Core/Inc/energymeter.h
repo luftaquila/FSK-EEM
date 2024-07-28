@@ -17,6 +17,7 @@
 #define BIT_SET(target, pos) ((target) |= (1 << (pos)))
 #define BIT_CLEAR(target, pos) ((target) &= ~(1 << (pos)))
 #define BIT_TOGGLE(target, pos) ((target) ^= (1 << (pos)))
+#define BIT_CHECK(target, pos) ((target) & (1 << (pos)))
 
 /******************************************************************************
  * module configuration
@@ -31,7 +32,6 @@ extern uint8_t error_status;
 
 // max 8 entries
 typedef enum {
-  EEM_NO_ERROR,
   EEM_ERR_INVALID_ID,
   EEM_ERR_SD_CARD,
   EEM_ERR_HARDFAULT,
@@ -121,6 +121,12 @@ typedef struct {
 extern TIM_HandleTypeDef htim1;
 
 #define TIMER_100ms htim1
+
+typedef enum {
+  TIMER_FLAG_100ms,
+  TIMER_FLAG_random,
+  TIMER_FLAG_1000ms,
+} timer_flag_t;
 
 #define UART_CONS huart1
 

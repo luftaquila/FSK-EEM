@@ -112,7 +112,7 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   
-  // switch mode by USB_SENSE on boot time
+  // set mode on boot by USB_SENSE status
   if (HAL_GPIO_ReadPin(USB_SENSE_GPIO_Port, USB_SENSE_Pin) == GPIO_PIN_RESET) {
     mode_energymeter();
   } else {

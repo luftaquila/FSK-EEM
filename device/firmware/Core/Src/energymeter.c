@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdlib.h>
 
 #include "energymeter.h"
 #include "ff.h"
@@ -12,6 +13,9 @@
 /* boot time from the start of the month in millisecond */
 uint32_t boot_time;
 
+/* random seed from the systick clock */
+uint32_t seed = 0;
+
 /* SD card write buffer */
 ring_buffer_t sd_buffer;
 uint8_t sd_buffer_arr[1 << 10]; // 1KB
@@ -23,8 +27,11 @@ uint8_t rf_buffer_arr[1 << 10]; // 1KB
 /* device id from flash */
 uint32_t device_id = DEVICE_ID_INVALID;
 
+/* timer flag */
+uint32_t timer_flag = 0;
+
 /* ERROR STATUS */
-uint8_t error_status = EEM_NO_ERROR;
+uint8_t error_status = 0;
 
 /* USB CDC debug print buffer */
 char debug_buffer[MAX_LEN_DEBUG_STR];
@@ -68,20 +75,69 @@ void mode_energymeter(void) {
 
   if (f_mount(&fat, "", 1) != FR_OK) {
     BIT_SET(error_status, EEM_ERR_SD_CARD);
+    HAL_GPIO_WritePin(LED_SD_GPIO_Port, LED_SD_Pin, GPIO_PIN_RESET);
   }
 
   FIL fp;
 
   if (f_open(&fp, path, FA_CREATE_ALWAYS | FA_WRITE) != FR_OK) {
     BIT_SET(error_status, EEM_ERR_SD_CARD);
+    HAL_GPIO_WritePin(LED_SD_GPIO_Port, LED_SD_Pin, GPIO_PIN_RESET);
   };
+
+  /* set random seed from the systick */
+  srand(SysTick->VAL);
 
   /* start 100ms timer */
   HAL_TIM_Base_Start_IT(&TIMER_100ms);
 
   while (1) {
+    if (BIT_CHECK(timer_flag, TIMER_FLAG_100ms)) {
+      BIT_CLEAR(timer_flag, TIMER_FLAG_100ms);
+    }
+
+    if (BIT_CHECK(timer_flag, TIMER_FLAG_random)) {
+      BIT_CLEAR(timer_flag, TIMER_FLAG_random);
+    }
+
+    if (BIT_CHECK(timer_flag, TIMER_FLAG_1000ms)) {
+      BIT_CLEAR(timer_flag, TIMER_FLAG_1000ms);
+    }
+  }
+}
+
+/******************************************************************************
+ * EEM energymeter mode 100ms periodic job
+ *****************************************************************************/
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+  static uint32_t counter = 0;
+  ++counter;
+
+  BIT_SET(timer_flag, TIMER_FLAG_100ms);
+
+  static uint32_t random_counter = 7;
+
+  if (counter == random_counter) {
+    BIT_SET(timer_flag, TIMER_FLAG_random);
+
+    // set next random event to 700~900ms
+    // to reduce prevent collisions from multiple transmitters
+    // i know rand() is a bad PRNG, but that is not important
+    random_counter += 7 + rand() % 3;
+
+    if (random_counter > 10) {
+      random_counter -= 10;
+    }
+  }
+
+  if (counter == 10) {
+    BIT_SET(timer_flag, TIMER_FLAG_1000ms);
+    counter = 0;
+  }
+
+  /* flash status led; OK 1 Hz, Error 10 Hz */
+  if (error_status || !counter) {
     HAL_GPIO_TogglePin(LED_STATUS_GPIO_Port, LED_STATUS_Pin);
-    HAL_Delay(500);
   }
 }
 
