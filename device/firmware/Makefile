@@ -44,7 +44,6 @@ BUILD_DIR = build
 # C sources
 C_SOURCES =  \
 Core/Src/main.c \
-Core/Src/ringbuffer.c \
 Core/Src/energymeter.c \
 Core/Src/gpio.c \
 Core/Src/adc.c \

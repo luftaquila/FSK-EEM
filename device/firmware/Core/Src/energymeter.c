@@ -9,7 +9,6 @@
 #include "rtc.h"
 
 #include "energymeter.h"
-#include "ringbuffer.h"
 #include "stm32f1xx_hal.h"
 #include "stm32f1xx_hal_crc.h"
 
@@ -21,10 +20,6 @@ uint32_t boot_time;
 
 /* random seed */
 uint32_t seed = 0;
-
-/* SD card write buffer */
-ring_buffer_t sd_buffer;
-uint8_t sd_buffer_arr[1 << 10]; // 1KB
 
 /* log item */
 log_item_t syslog = { .id = DEVICE_ID_INVALID };
@@ -68,9 +63,6 @@ void mode_energymeter(void) {
   boot_time = boot.day * 86400000 + boot.hour * 3600000 + boot.minute * 60000 +
               boot.second * 1000;
 
-  /* init ring buffers */
-  ring_buffer_init(&sd_buffer, (char *)sd_buffer_arr, sizeof(sd_buffer_arr));
-
   /* init telemetry */
 #if RF_ENABLED
   // TODO
@@ -110,7 +102,13 @@ void mode_energymeter(void) {
       syslog.type = LOG_TYPE_REPORT;
       syslog.checksum = 0;
       syslog.checksum = HAL_CRC_Calculate(&hcrc, (uint32_t *)&syslog, sizeof(syslog));
-      ring_buffer_queue_arr(&sd_buffer, (char *)&syslog, sizeof(syslog));
+
+      UINT written;
+
+      // write directly into the fatfs buffer; will take mostly 5us, or sometimes 40us
+      if (f_write(&fp, &syslog, sizeof(syslog), &written) != FR_OK) {
+
+      }
 
       adc_flag = FALSE;
     }
@@ -129,6 +127,11 @@ void mode_energymeter(void) {
     // 1000ms timer event flag set
     if (BIT_CHECK(timer_flag, TIMER_FLAG_1000ms)) {
       BIT_CLEAR(timer_flag, TIMER_FLAG_1000ms);
+
+      // write fatfs buffer to the file; will take mostly ~5ms, worst 12ms
+      if (f_sync(&fp) != FR_OK) {
+
+      }
     }
   }
 }
