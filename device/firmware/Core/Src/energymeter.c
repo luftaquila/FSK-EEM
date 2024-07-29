@@ -182,12 +182,12 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
 
   // calibrate channels with calcualted VDDA
   for (int i = ADC_CH_HV_VOLTAGE; i < ADC_CH_MAX; i++) {
-    adc_voltage[i] = (float)((1 << ADC_RESOLUTION) - 1) * (float)(adc_value[i]) / adc_voltage[ADC_CH_VREFINT];
+    adc_voltage[i] = (float)adc_value[i] / (float)((1 << ADC_RESOLUTION) - 1) * adc_voltage[ADC_CH_VREFINT];
   }
 
 #if TEMPSENSOR_ENABLED
   // RM0008 11.10 ADC Temperature sensor
-  adc_voltage[ADC_CH_TEMPERATURE] = (((ADC_TEMP_V25 - adc_voltage[ADC_CH_TEMPERATURE]) / ADC_TEMP_AVG_SLOPE) + 25.0) * 10.0;
+  adc_voltage[ADC_CH_TEMPERATURE] = (((ADC_TEMP_V25 - adc_voltage[ADC_CH_TEMPERATURE]) / ADC_TEMP_AVG_SLOPE) + 25.0);
 #endif
 
   adc_flag = TRUE;
