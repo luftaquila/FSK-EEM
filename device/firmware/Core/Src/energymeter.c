@@ -1,4 +1,3 @@
-#include <math.h>
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -9,8 +8,6 @@
 #include "rtc.h"
 
 #include "energymeter.h"
-#include "stm32f1xx_hal.h"
-#include "stm32f1xx_hal_crc.h"
 
 /******************************************************************************
  * global variables
@@ -91,6 +88,9 @@ void mode_energymeter(void) {
 
   /* start 100ms timer */
   HAL_TIM_Base_Start_IT(&TIMER_100ms);
+
+  /* mark device operating */
+  HAL_GPIO_WritePin(LED_STATUS_GPIO_Port, LED_STATUS_Pin, GPIO_PIN_RESET);
 
   while (1) {
     // adc conversion complete flag set
