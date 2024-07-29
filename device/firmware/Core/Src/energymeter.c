@@ -1,11 +1,14 @@
+#include <math.h>
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "energymeter.h"
+#include "adc.h"
 #include "ff.h"
 #include "main.h"
-#include "ringbuffer.h"
 #include "rtc.h"
+
+#include "energymeter.h"
+#include "ringbuffer.h"
 
 /******************************************************************************
  * global variables
@@ -29,6 +32,11 @@ uint32_t device_id = DEVICE_ID_INVALID;
 
 /* timer flag */
 uint32_t timer_flag = 0;
+
+/* analog flag and buffer */
+uint32_t adc_flag = 0;
+uint32_t adc_value[ADC_CH_MAX];
+float adc_voltage[ADC_CH_MAX];
 
 /* ERROR STATUS */
 uint8_t error_status = 0;
@@ -88,12 +96,20 @@ void mode_energymeter(void) {
   /* set random seed from the systick */
   srand(SysTick->VAL);
 
+  /* start ADC calibration; RM0008 11.4 ADC Calibration */
+  while(HAL_ADCEx_Calibration_Start(&ADC) != HAL_OK);
+
   /* start 100ms timer */
   HAL_TIM_Base_Start_IT(&TIMER_100ms);
 
   while (1) {
+    if (adc_flag) {
+      adc_flag = FALSE;
+    }
+
     if (BIT_CHECK(timer_flag, TIMER_FLAG_100ms)) {
       BIT_CLEAR(timer_flag, TIMER_FLAG_100ms);
+      HAL_ADC_Start_DMA(&ADC, adc_value, 5);
     }
 
     if (BIT_CHECK(timer_flag, TIMER_FLAG_random)) {
@@ -118,8 +134,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
   static uint32_t random_counter = 7;
 
   if (counter == random_counter) {
-    BIT_SET(timer_flag, TIMER_FLAG_random);
-
     // set next random event to 700~900ms
     // to reduce prevent collisions from multiple transmitters
     // i know rand() is a bad PRNG, but that is not important
@@ -128,17 +142,39 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
     if (random_counter > 10) {
       random_counter -= 10;
     }
+
+    BIT_SET(timer_flag, TIMER_FLAG_random);
   }
 
   if (counter == 10) {
-    BIT_SET(timer_flag, TIMER_FLAG_1000ms);
     counter = 0;
+    BIT_SET(timer_flag, TIMER_FLAG_1000ms);
   }
 
   /* flash status led; OK 1 Hz, Error 10 Hz */
   if (error_status || !counter) {
     HAL_GPIO_TogglePin(LED_STATUS_GPIO_Port, LED_STATUS_Pin);
   }
+}
+
+/******************************************************************************
+ * EEM energymeter mode ADC convert complete job
+ *****************************************************************************/
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
+  // VDDA calculation
+  adc_voltage[ADC_CH_VREFINT] = (float)((1 << ADC_RESOLUTION) - 1) * ADC_VREFINT / (float)(adc_value[ADC_CH_VREFINT]);
+
+  // calibrate channels with calcualted VDDA
+  for (int i = ADC_CH_HV_VOLTAGE; i < ADC_CH_MAX; i++) {
+    adc_voltage[i] = (float)((1 << ADC_RESOLUTION) - 1) * (float)(adc_value[i]) / adc_voltage[ADC_CH_VREFINT];
+  }
+
+  #if TEMPSENSOR_ENABLED
+  // RM0008 11.10 ADC Temperature sensor
+  adc_voltage[ADC_CH_TEMPERATURE] = (((ADC_TEMP_V25 - adc_voltage[ADC_CH_TEMPERATURE]) / ADC_TEMP_AVG_SLOPE) + 25.0) * 10.0;
+  #endif
+
+  adc_flag = TRUE;
 }
 
 /******************************************************************************

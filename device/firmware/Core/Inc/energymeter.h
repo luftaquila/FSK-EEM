@@ -22,8 +22,14 @@
 /******************************************************************************
  * module configuration
  *****************************************************************************/
+// enable output debug print to USB CDC on energymeter mode
 #define DEBUG_ENABLED TRUE
+
+// eanble telemetry
 #define RF_ENABLED FALSE
+
+// enable internal temperature sensor measurement
+#define TEMPSENSOR_ENABLED FALSE
 
 /******************************************************************************
  * module error configuration
@@ -132,6 +138,29 @@ typedef enum {
 
 #define SPI_SD hspi1
 #define SPI_RF hspi2
+
+#define ADC hadc1
+
+typedef enum {
+  ADC_CH_VREFINT,
+  ADC_CH_HV_VOLTAGE,
+  ADC_CH_HV_CURRENT,
+  ADC_CH_LV_VOLTAGE,
+  #if TEMPSENSOR_ENABLED
+  ADC_CH_TEMPERATURE,
+  #endif
+  ADC_CH_MAX,
+} adc_channel_t;
+
+// RM0008 11.2 ADC main features
+#define ADC_RESOLUTION 12 // bit resolution
+
+// STM32F103x8 datasheet 5.3.4 Embedded reference voltage
+#define ADC_VREFINT 1.20
+
+// STM32F103x8 datasheet 5.3.19 Temperature sensor characteristics
+#define ADC_TEMP_V25 1.43
+#define ADC_TEMP_AVG_SLOPE 4.3
 
 /******************************************************************************
  * debug configuration
