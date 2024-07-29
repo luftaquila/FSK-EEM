@@ -116,7 +116,7 @@ void mode_energymeter(void) {
     // 100ms timer event flag set
     if (BIT_CHECK(timer_flag, TIMER_FLAG_100ms)) {
       BIT_CLEAR(timer_flag, TIMER_FLAG_100ms);
-      HAL_ADC_Start_DMA(&ADC, adc_value, 5);
+      HAL_ADC_Start_DMA(&ADC, adc_value, ADC_CH_MAX);
     }
 
     // 700~900ms random timer event flag set
@@ -183,10 +183,8 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
     adc_voltage[i] = (float)adc_value[i] / (float)((1 << ADC_RESOLUTION) - 1) * adc_voltage[ADC_CH_VREFINT];
   }
 
-#if TEMPSENSOR_ENABLED
   // RM0008 11.10 ADC Temperature sensor
   adc_voltage[ADC_CH_TEMPERATURE] = (((ADC_TEMP_V25 - adc_voltage[ADC_CH_TEMPERATURE]) / ADC_TEMP_AVG_SLOPE) + 25.0);
-#endif
 
   adc_flag = TRUE;
 }

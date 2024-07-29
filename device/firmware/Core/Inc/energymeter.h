@@ -28,9 +28,6 @@
 // eanble telemetry
 #define RF_ENABLED FALSE
 
-// enable internal temperature sensor measurement
-#define TEMPSENSOR_ENABLED FALSE
-
 /******************************************************************************
  * module error configuration
  *****************************************************************************/
@@ -146,9 +143,7 @@ typedef enum {
   ADC_CH_HV_VOLTAGE,
   ADC_CH_HV_CURRENT,
   ADC_CH_LV_VOLTAGE,
-#if TEMPSENSOR_ENABLED
   ADC_CH_TEMPERATURE,
-#endif
   ADC_CH_MAX,
 } adc_channel_t;
 
