@@ -113,11 +113,6 @@ void mode_energymeter(void) {
       ring_buffer_queue_arr(&sd_buffer, (char *)&syslog, sizeof(syslog));
 
       adc_flag = FALSE;
-
-      DEBUG_MSG("[%u] hv_v: %d hv_c: %d lv_v: %d\n", syslog.time,
-                syslog.payload.log_item_report.hv_v,
-                syslog.payload.log_item_report.hv_c,
-                syslog.payload.log_item_report.lv_v);
     }
 
     // 100ms timer event flag set
