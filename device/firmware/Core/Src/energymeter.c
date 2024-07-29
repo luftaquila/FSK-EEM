@@ -3,12 +3,15 @@
 #include <stdlib.h>
 
 #include "adc.h"
+#include "crc.h"
 #include "ff.h"
 #include "main.h"
 #include "rtc.h"
 
 #include "energymeter.h"
 #include "ringbuffer.h"
+#include "stm32f1xx_hal.h"
+#include "stm32f1xx_hal_crc.h"
 
 /******************************************************************************
  * global variables
@@ -16,19 +19,15 @@
 /* boot time from the start of the month in millisecond */
 uint32_t boot_time;
 
-/* random seed from the systick clock */
+/* random seed */
 uint32_t seed = 0;
 
 /* SD card write buffer */
 ring_buffer_t sd_buffer;
 uint8_t sd_buffer_arr[1 << 10]; // 1KB
 
-/* RF transmit buffer */
-ring_buffer_t rf_buffer;
-uint8_t rf_buffer_arr[1 << 10]; // 1KB
-
-/* device id from flash */
-uint32_t device_id = DEVICE_ID_INVALID;
+/* log item */
+log_item_t syslog = { .id = DEVICE_ID_INVALID };
 
 /* timer flag */
 uint32_t timer_flag = 0;
@@ -59,11 +58,11 @@ void mode_energymeter(void) {
   if (devid->canary != FLASH_CANARY_DEVICE_ID) {
     BIT_SET(error_status, EEM_ERR_INVALID_ID);
   } else {
-    device_id = devid->id;
+    syslog.id = devid->id;
   }
 
   char path[36];
-  sprintf(path, "%05ld 20%02d-%02d-%02d-%02d-%02d-%02d.log", device_id,
+  sprintf(path, "%05u 20%02d-%02d-%02d-%02d-%02d-%02d.log", syslog.id,
           boot.year, boot.month, boot.day, boot.hour, boot.minute, boot.second);
 
   boot_time = boot.day * 86400000 + boot.hour * 3600000 + boot.minute * 60000 +
@@ -71,7 +70,6 @@ void mode_energymeter(void) {
 
   /* init ring buffers */
   ring_buffer_init(&sd_buffer, (char *)sd_buffer_arr, sizeof(sd_buffer_arr));
-  ring_buffer_init(&rf_buffer, (char *)rf_buffer_arr, sizeof(rf_buffer_arr));
 
   /* init telemetry */
 #if RF_ENABLED
@@ -97,25 +95,43 @@ void mode_energymeter(void) {
   srand(SysTick->VAL);
 
   /* start ADC calibration; RM0008 11.4 ADC Calibration */
-  while(HAL_ADCEx_Calibration_Start(&ADC) != HAL_OK);
+  while (HAL_ADCEx_Calibration_Start(&ADC) != HAL_OK) {}
 
   /* start 100ms timer */
   HAL_TIM_Base_Start_IT(&TIMER_100ms);
 
   while (1) {
+    // adc conversion complete flag set
     if (adc_flag) {
+      syslog.time = boot_time + HAL_GetTick();
+      syslog.payload.log_item_report.hv_v = (uint16_t)(adc_voltage[ADC_CH_HV_VOLTAGE] * 10000);
+      syslog.payload.log_item_report.hv_c = (uint16_t)(adc_voltage[ADC_CH_HV_CURRENT] * 10000);
+      syslog.payload.log_item_report.lv_v = (uint16_t)(adc_voltage[ADC_CH_LV_VOLTAGE] * 10000);
+      syslog.type = LOG_TYPE_REPORT;
+      syslog.checksum = 0;
+      syslog.checksum = HAL_CRC_Calculate(&hcrc, (uint32_t *)&syslog, sizeof(syslog));
+      ring_buffer_queue_arr(&sd_buffer, (char *)&syslog, sizeof(syslog));
+
       adc_flag = FALSE;
+
+      DEBUG_MSG("[%u] hv_v: %d hv_c: %d lv_v: %d\n", syslog.time,
+                syslog.payload.log_item_report.hv_v,
+                syslog.payload.log_item_report.hv_c,
+                syslog.payload.log_item_report.lv_v);
     }
 
+    // 100ms timer event flag set
     if (BIT_CHECK(timer_flag, TIMER_FLAG_100ms)) {
       BIT_CLEAR(timer_flag, TIMER_FLAG_100ms);
       HAL_ADC_Start_DMA(&ADC, adc_value, 5);
     }
 
+    // 700~900ms random timer event flag set
     if (BIT_CHECK(timer_flag, TIMER_FLAG_random)) {
       BIT_CLEAR(timer_flag, TIMER_FLAG_random);
     }
 
+    // 1000ms timer event flag set
     if (BIT_CHECK(timer_flag, TIMER_FLAG_1000ms)) {
       BIT_CLEAR(timer_flag, TIMER_FLAG_1000ms);
     }
@@ -160,7 +176,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 /******************************************************************************
  * EEM energymeter mode ADC convert complete job
  *****************************************************************************/
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
   // VDDA calculation
   adc_voltage[ADC_CH_VREFINT] = (float)((1 << ADC_RESOLUTION) - 1) * ADC_VREFINT / (float)(adc_value[ADC_CH_VREFINT]);
 
@@ -169,10 +185,10 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
     adc_voltage[i] = (float)((1 << ADC_RESOLUTION) - 1) * (float)(adc_value[i]) / adc_voltage[ADC_CH_VREFINT];
   }
 
-  #if TEMPSENSOR_ENABLED
+#if TEMPSENSOR_ENABLED
   // RM0008 11.10 ADC Temperature sensor
   adc_voltage[ADC_CH_TEMPERATURE] = (((ADC_TEMP_V25 - adc_voltage[ADC_CH_TEMPERATURE]) / ADC_TEMP_AVG_SLOPE) + 25.0) * 10.0;
-  #endif
+#endif
 
   adc_flag = TRUE;
 }

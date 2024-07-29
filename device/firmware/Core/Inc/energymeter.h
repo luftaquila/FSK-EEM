@@ -11,13 +11,13 @@
 /******************************************************************************
  * basic definitions
  *****************************************************************************/
-#define TRUE (1)
+#define TRUE  (1)
 #define FALSE (0)
 
-#define BIT_SET(target, pos) ((target) |= (1 << (pos)))
-#define BIT_CLEAR(target, pos) ((target) &= ~(1 << (pos)))
+#define BIT_SET(target, pos)    ((target) |= (1 << (pos)))
+#define BIT_CLEAR(target, pos)  ((target) &= ~(1 << (pos)))
 #define BIT_TOGGLE(target, pos) ((target) ^= (1 << (pos)))
-#define BIT_CHECK(target, pos) ((target) & (1 << (pos)))
+#define BIT_CHECK(target, pos)  ((target) & (1 << (pos)))
 
 /******************************************************************************
  * module configuration
@@ -49,7 +49,7 @@ typedef enum {
 extern uint32_t boot_time;
 
 // flash page 63, PM0075 Table 3. Flash module organization (medium density)
-#define FLASH_TARGET_PAGE 0x0800FC00
+#define FLASH_TARGET_PAGE      0x0800FC00
 #define FLASH_CANARY_DEVICE_ID 0xBADACAFE
 
 typedef struct {
@@ -58,8 +58,8 @@ typedef struct {
 } device_id_t;
 
 /* reserved device ids */
-#define DEVICE_ID_INVALID 0xFFFF;
-#define DEVICE_ID_BROADCAST 0xFFFE;
+#define DEVICE_ID_INVALID   0xFFFF
+#define DEVICE_ID_BROADCAST 0xFFFE
 
 /* log format definitions */
 // max 8 entries
@@ -146,9 +146,9 @@ typedef enum {
   ADC_CH_HV_VOLTAGE,
   ADC_CH_HV_CURRENT,
   ADC_CH_LV_VOLTAGE,
-  #if TEMPSENSOR_ENABLED
+#if TEMPSENSOR_ENABLED
   ADC_CH_TEMPERATURE,
-  #endif
+#endif
   ADC_CH_MAX,
 } adc_channel_t;
 
@@ -159,7 +159,7 @@ typedef enum {
 #define ADC_VREFINT 1.20
 
 // STM32F103x8 datasheet 5.3.19 Temperature sensor characteristics
-#define ADC_TEMP_V25 1.43
+#define ADC_TEMP_V25       1.43
 #define ADC_TEMP_AVG_SLOPE 4.3
 
 /******************************************************************************
@@ -180,9 +180,9 @@ static inline void debug_print(const char *fmt, ...) {
   HAL_Delay(10); // just busy wait a bit
 }
 
-#define DEBUG_MSG(fmt, ...) debug_print(fmt, ##__VA_ARGS__)
+  #define DEBUG_MSG(fmt, ...) debug_print(fmt, ##__VA_ARGS__)
 #else
-#define DEBUG_MSG(fmt, ...)
+  #define DEBUG_MSG(fmt, ...)
 #endif
 
 /******************************************************************************
