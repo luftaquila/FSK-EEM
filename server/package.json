@@ -1,0 +1,26 @@
+{
+  "name": "fsk-eem",
+  "version": "1.0.0",
+  "description": "E-Formula electric energy meter for Formula Student Korea",
+  "main": "index.mjs",
+  "scripts": {
+    "test": "node index.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/luftaquila/FSK-EEM.git"
+  },
+  "author": "luftaquila",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/luftaquila/FSK-EEM/issues"
+  },
+  "homepage": "https://github.com/luftaquila/FSK-EEM#readme",
+  "dependencies": {
+    "dateformat": "^5.0.3",
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5",
+    "winston": "^3.13.1",
+    "winston-daily-rotate-file": "^5.0.0"
+  }
+}
