@@ -1,4 +1,3 @@
-#include <stdint.h>
 #include <stdlib.h>
 
 #include "adc.h"
@@ -22,15 +21,15 @@ uint32_t seed = 0;
 log_item_t syslog = { .id = DEVICE_ID_INVALID, .magic = MAGIC_PACKET_END };
 
 /* timer flag */
-uint32_t timer_flag = 0;
+uint32_t timer_flag = FALSE;
 
 /* analog flag and buffer */
-uint32_t adc_flag = 0;
+uint32_t adc_flag = FALSE;
 uint32_t adc_value[ADC_CH_MAX];
 float adc_voltage[ADC_CH_MAX];
 
 /* ERROR STATUS */
-uint8_t error_status = 0;
+uint8_t error_status = FALSE;
 
 /* USB CDC debug print buffer */
 char debug_buffer[MAX_LEN_DEBUG_STR];
@@ -187,14 +186,4 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
   adc_voltage[ADC_CH_TEMPERATURE] = (((ADC_TEMP_V25 - adc_voltage[ADC_CH_TEMPERATURE]) / ADC_TEMP_AVG_SLOPE) + 25.0);
 
   adc_flag = TRUE;
-}
-
-/******************************************************************************
- * EEM usb data dump mode
- *****************************************************************************/
-void mode_usb(void) {
-  while (1) {
-    HAL_GPIO_TogglePin(LED_STATUS_GPIO_Port, LED_STATUS_Pin);
-    HAL_Delay(1000);
-  }
 }

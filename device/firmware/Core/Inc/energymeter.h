@@ -164,6 +164,16 @@ typedef enum {
 #define ADC_TEMP_AVG_SLOPE 4.3
 
 /******************************************************************************
+ * USB CDC transmit macro
+ *****************************************************************************/
+#define USB_Transmit(buf, len)             \
+  {                                        \
+    do {                                   \
+      usb_ret = CDC_Transmit_FS(buf, len); \
+    } while (usb_ret == USBD_BUSY);        \
+  }
+
+/******************************************************************************
  * debug configuration
  *****************************************************************************/
 #define MAX_LEN_DEBUG_STR 256
@@ -177,8 +187,8 @@ static inline void debug_print(const char *fmt, ...) {
   va_start(args, fmt);
   vsprintf(debug_buffer, fmt, args);
 
-  CDC_Transmit_FS((uint8_t *)debug_buffer, strlen(debug_buffer));
-  HAL_Delay(1); // just busy wait a bit
+  uint8_t usb_ret;
+  USB_Transmit((uint8_t *)debug_buffer, strlen(debug_buffer));
 }
 
   #define DEBUG_MSG(fmt, ...) debug_print(fmt, ##__VA_ARGS__)
@@ -190,6 +200,5 @@ static inline void debug_print(const char *fmt, ...) {
  * function prototypes
  *****************************************************************************/
 void mode_energymeter(void);
-void mode_usb(void);
 
 #endif /* CORE_INC_ENERGYMETER_H */
