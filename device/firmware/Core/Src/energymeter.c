@@ -44,8 +44,7 @@ void mode_energymeter(void) {
   rtc_read(&boot);
 
   /* read device id from the flash */
-  device_id_t *devid;
-  devid = (device_id_t *)FLASH_TARGET_PAGE;
+  device_id_t *devid = (device_id_t *)FLASH_TARGET_PAGE;
 
   if (devid->canary != FLASH_CANARY_DEVICE_ID) {
     BIT_SET(error_status, EEM_ERR_INVALID_ID);
