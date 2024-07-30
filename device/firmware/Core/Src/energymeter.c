@@ -87,7 +87,7 @@ void mode_energymeter(void) {
   while (HAL_ADCEx_Calibration_Start(&ADC) != HAL_OK) {}
 
   /* start 100ms timer */
-  HAL_TIM_Base_Start_IT(&TIMER_100ms);
+  HAL_TIM_Base_Start_IT(&TIMER_20ms);
 
   /* mark device operating */
   HAL_GPIO_WritePin(LED_STATUS_GPIO_Port, LED_STATUS_Pin, GPIO_PIN_RESET);
@@ -113,20 +113,20 @@ void mode_energymeter(void) {
       adc_flag = FALSE;
     }
 
-    // 100ms timer event flag set
-    if (BIT_CHECK(timer_flag, TIMER_FLAG_100ms)) {
-      BIT_CLEAR(timer_flag, TIMER_FLAG_100ms);
+    // 20ms timer event flag set
+    if (BIT_CHECK(timer_flag, TIMER_FLAG_20ms)) {
+      BIT_CLEAR(timer_flag, TIMER_FLAG_20ms);
       HAL_ADC_Start_DMA(&ADC, adc_value, ADC_CH_MAX);
     }
 
-    // 700~900ms random timer event flag set
+    // 700~840ms random timer event flag set
     if (BIT_CHECK(timer_flag, TIMER_FLAG_random)) {
       BIT_CLEAR(timer_flag, TIMER_FLAG_random);
     }
 
-    // 1000ms timer event flag set
-    if (BIT_CHECK(timer_flag, TIMER_FLAG_1000ms)) {
-      BIT_CLEAR(timer_flag, TIMER_FLAG_1000ms);
+    // 960ms timer event flag set
+    if (BIT_CHECK(timer_flag, TIMER_FLAG_960ms)) {
+      BIT_CLEAR(timer_flag, TIMER_FLAG_960ms);
 
       // write fatfs buffer to the file; will take mostly ~5ms, worst 12ms
       if (f_sync(&fp) != FR_OK) {
@@ -140,33 +140,32 @@ void mode_energymeter(void) {
  * EEM energymeter mode 100ms periodic job
  *****************************************************************************/
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-  static uint32_t counter = 0;
-  ++counter;
+  static uint32_t cnt = 0;
+  ++cnt;
 
-  BIT_SET(timer_flag, TIMER_FLAG_100ms);
+  BIT_SET(timer_flag, TIMER_FLAG_20ms);
 
-  static uint32_t random_counter = 7;
+  static uint32_t random_cnt = TIM_CNT_RAND_BASE;
 
-  if (counter == random_counter) {
-    // set next random event to 700~900ms
-    // to reduce prevent collisions from multiple transmitters
-    // i know rand() is a bad PRNG, but that is not important
-    random_counter += 7 + rand() % 3;
+  if (cnt == random_cnt) {
+    // set next random event to 700~840ms to reduce collisions
+    // yes. rand() is a bad PRNG. but that is not important, maybe
+    random_cnt += TIM_CNT_RAND_BASE + (rand() & 0b0111);
 
-    if (random_counter > 10) {
-      random_counter -= 10;
+    if (random_cnt > TIM_CNT_MAX) {
+      random_cnt -= TIM_CNT_MAX;
     }
 
     BIT_SET(timer_flag, TIMER_FLAG_random);
   }
 
-  if (counter == 10) {
-    counter = 0;
-    BIT_SET(timer_flag, TIMER_FLAG_1000ms);
+  if (cnt == TIM_CNT_MAX) {
+    cnt = 0;
+    BIT_SET(timer_flag, TIMER_FLAG_960ms);
   }
 
-  /* flash status led; OK 1 Hz, Error 10 Hz */
-  if (error_status || !counter) {
+  /* flash status led; OK 1 Hz, Error 6.25 Hz */
+  if (!cnt || (error_status && !(cnt & 0b0111))) {
     HAL_GPIO_TogglePin(LED_STATUS_GPIO_Port, LED_STATUS_Pin);
   }
 }

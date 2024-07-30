@@ -123,12 +123,15 @@ typedef struct {
  *****************************************************************************/
 extern TIM_HandleTypeDef htim1;
 
-#define TIMER_100ms htim1
+#define TIMER_20ms htim1
+
+#define TIM_CNT_MAX       48 // 960ms
+#define TIM_CNT_RAND_BASE 35 // 700ms
 
 typedef enum {
-  TIMER_FLAG_100ms,
+  TIMER_FLAG_20ms,
   TIMER_FLAG_random,
-  TIMER_FLAG_1000ms,
+  TIMER_FLAG_960ms,
 } timer_flag_t;
 
 #define UART_CONS huart1
@@ -172,7 +175,7 @@ static inline void debug_print(const char *fmt, ...) {
   vsprintf(debug_buffer, fmt, args);
 
   CDC_Transmit_FS((uint8_t *)debug_buffer, strlen(debug_buffer));
-  HAL_Delay(10); // just busy wait a bit
+  HAL_Delay(1); // just busy wait a bit
 }
 
   #define DEBUG_MSG(fmt, ...) debug_print(fmt, ##__VA_ARGS__)
