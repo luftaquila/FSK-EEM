@@ -70,14 +70,14 @@ void mode_energymeter(void) {
 
   if (f_mount(&fat, "", 1) != FR_OK) {
     BIT_SET(error_status, EEM_ERR_SD_CARD);
-    HAL_GPIO_WritePin(LED_SD_GPIO_Port, LED_SD_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(LED_SD_ERR_GPIO_Port, LED_SD_ERR_Pin, GPIO_PIN_RESET);
   }
 
   FIL fp;
 
   if (f_open(&fp, path, FA_CREATE_ALWAYS | FA_WRITE) != FR_OK) {
     BIT_SET(error_status, EEM_ERR_SD_CARD);
-    HAL_GPIO_WritePin(LED_SD_GPIO_Port, LED_SD_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(LED_SD_ERR_GPIO_Port, LED_SD_ERR_Pin, GPIO_PIN_RESET);
   };
 
   /* set random seed from the systick */
@@ -107,7 +107,8 @@ void mode_energymeter(void) {
 
       // write directly into the fatfs buffer; will take mostly 5us, or sometimes 40us
       if (f_write(&fp, &syslog, sizeof(syslog), &written) != FR_OK) {
-
+        BIT_SET(error_status, EEM_ERR_SD_CARD);
+        HAL_GPIO_WritePin(LED_SD_ERR_GPIO_Port, LED_SD_ERR_Pin, GPIO_PIN_RESET);
       }
 
       adc_flag = FALSE;
@@ -130,7 +131,8 @@ void mode_energymeter(void) {
 
       // write fatfs buffer to the file; will take mostly ~5ms, worst 12ms
       if (f_sync(&fp) != FR_OK) {
-
+        BIT_SET(error_status, EEM_ERR_SD_CARD);
+        HAL_GPIO_WritePin(LED_SD_ERR_GPIO_Port, LED_SD_ERR_Pin, GPIO_PIN_RESET);
       }
     }
   }
