@@ -19,7 +19,7 @@ uint32_t boot_time;
 uint32_t seed = 0;
 
 /* log item */
-log_item_t syslog = { .id = DEVICE_ID_INVALID };
+log_item_t syslog = { .id = DEVICE_ID_INVALID, .magic = MAGIC_PACKET_END };
 
 /* timer flag */
 uint32_t timer_flag = 0;

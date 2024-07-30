@@ -58,6 +58,9 @@ typedef struct {
 #define DEVICE_ID_INVALID   0xFFFF
 #define DEVICE_ID_BROADCAST 0xFFFE
 
+/* mark packet end magic byte */
+#define MAGIC_PACKET_END 0xAA
+
 /* log format definitions */
 // max 8 entries
 typedef enum {
@@ -96,10 +99,10 @@ typedef struct {
     log_item_command_t log_item_command;
     log_item_error_t log_item_error;
   } payload;         // 6 byte log payload
-  uint8_t type;      // log type
-  uint8_t _reserved; // reserved for future use
   uint16_t id;       // device id
   uint16_t checksum; // CRC-16 checksum
+  uint8_t type;      // log type
+  uint8_t magic;     // magic packet end byte 0xAA
 } log_item_t;
 
 /* remote command definitions */
