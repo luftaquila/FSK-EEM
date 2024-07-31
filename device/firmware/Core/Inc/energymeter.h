@@ -22,9 +22,6 @@
 /******************************************************************************
  * module configuration
  *****************************************************************************/
-// enable output debug print to USB CDC on energymeter mode
-#define DEBUG_ENABLED TRUE
-
 // eanble telemetry
 #define RF_ENABLED FALSE
 
@@ -181,7 +178,7 @@ typedef enum {
 extern char debug_buffer[];
 
 // Debug print function
-#if DEBUG_ENABLED
+#ifdef DEBUG
 static inline void debug_print(const char *fmt, ...) {
   va_list args;
   va_start(args, fmt);

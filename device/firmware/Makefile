@@ -177,7 +177,7 @@ ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffuncti
 CFLAGS += $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
 
 ifeq ($(DEBUG), 1)
-CFLAGS += -g -gdwarf-2
+CFLAGS += -g -gdwarf-2 -DDEBUG
 endif
 
 
@@ -245,10 +245,30 @@ clean:
 -include $(wildcard $(BUILD_DIR)/*.d)
 
 #######################################
+# debug mode
+#######################################
+debug:
+	make DEBUG=1
+
+#######################################
 # program
 #######################################
 program:
 	openocd -f FSK-EEM.cfg
+
+#######################################
+# attach
+# NOTE: in Core/Src/stm32f1xx_hal_msp.c,
+#   __HAL_AFIO_REMAP_SWJ_NOJTAG() must be commented out at HAL_MspInit()
+#######################################
+attach:
+	openocd -c "set CPUTAPID 0x2ba01477" -f interface/stlink.cfg -f target/stm32f1x.cfg
+
+#######################################
+# gdb
+#######################################
+gdb:
+	arm-none-eabi-gdb -x debug.gdb
 
 #######################################
 # dump
