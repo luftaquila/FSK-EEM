@@ -254,7 +254,7 @@ debug:
 # program
 #######################################
 program:
-	openocd -f FSK-EEM.cfg
+	make && openocd -f FSK-EEM.cfg
 
 #######################################
 # attach

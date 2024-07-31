@@ -113,6 +113,8 @@ void mode_usb(void) {
     else if (USB_Command(CMD_LOAD_ONE)) {
       usb_load_one(UserRxBufferFS + strlen(cmd[CMD_LOAD_ONE]) + 1);
     }
+
+    usb_flag = FALSE;
   }
 }
 
@@ -137,18 +139,21 @@ void usb_load_list(void) {
   fno.lfname = filename;
   fno.lfsize = sizeof(filename);
 
-  while (TRUE) {
-    FRESULT ret = f_findfirst(&dir, &fno, "", "*.log");
-
-    while (ret == FR_OK && fno.fname[0]) {
-      sprintf((char *)UserTxBufferFS, "%s %lu %s", resp[RESP_FILE_ENTRY], fno.fsize, fno.lfname);
-      USB_Transmit(UserTxBufferFS, strlen((const char *)UserTxBufferFS));
-
-      ret = f_findnext(&dir, &fno);
-    }
-
-    f_closedir(&dir);
+  if (f_findfirst(&dir, &fno, "", "*.log") != FR_OK) {
+    USB_Response(RESP_ERROR);
+    return;
   }
+
+  FRESULT ret;
+
+  do {
+    sprintf((char *)UserTxBufferFS, "%s %lu %s", resp[RESP_FILE_ENTRY], fno.fsize, fno.lfname);
+    USB_Transmit(UserTxBufferFS, strlen((const char *)UserTxBufferFS));
+
+    ret = f_findnext(&dir, &fno);
+  } while (ret == FR_OK && fno.fname[0]);
+
+  f_closedir(&dir);
 
   USB_Response(RESP_LIST_END);
 }
@@ -167,42 +172,45 @@ void usb_load_all(void) {
   fno.lfname = filename;
   fno.lfsize = sizeof(filename);
 
-  while (TRUE) {
-    FRESULT ret = f_findfirst(&dir, &fno, "", "*.log");
+  if (f_findfirst(&dir, &fno, "", "*.log") != FR_OK) {
+    USB_Response(RESP_ERROR);
+    return;
+  }
 
-    while (ret == FR_OK && fno.fname[0]) {
-      sprintf((char *)UserTxBufferFS, "%s %lu %s", resp[RESP_FILE_ENTRY], fno.fsize, fno.lfname);
-      USB_Transmit(UserTxBufferFS, strlen((const char *)UserTxBufferFS));
+  FRESULT ret;
 
-      FIL fp;
+  do {
+    sprintf((char *)UserTxBufferFS, "%s %lu %s", resp[RESP_FILE_ENTRY], fno.fsize, fno.lfname);
+    USB_Transmit(UserTxBufferFS, strlen((const char *)UserTxBufferFS));
 
-      if (f_open(&fp, fno.lfname, FA_READ) != FR_OK) {
+    FIL fp;
+
+    if (f_open(&fp, fno.lfname, FA_READ) != FR_OK) {
+      USB_Response(RESP_ERROR);
+      return;
+    };
+
+    uint32_t total_read = 0;
+
+    while (total_read < f_size(&fp)) {
+      uint32_t read;
+
+      if (f_read(&fp, UserTxBufferFS, APP_TX_DATA_SIZE, (UINT *)&read) != FR_OK) {
         USB_Response(RESP_ERROR);
+        USB_Response(RESP_FILE_END);
         return;
-      };
-
-      uint32_t total_read = 0;
-
-      while (total_read < f_size(&fp)) {
-        uint32_t read;
-
-        if (f_read(&fp, UserTxBufferFS, APP_TX_DATA_SIZE, (UINT *)&read) != FR_OK) {
-          USB_Response(RESP_ERROR);
-          USB_Response(RESP_FILE_END);
-          return;
-        }
-
-        total_read += read;
-        USB_Transmit(UserTxBufferFS, read);
       }
 
-      USB_Response(RESP_FILE_END);
-
-      ret = f_findnext(&dir, &fno);
+      total_read += read;
+      USB_Transmit(UserTxBufferFS, read);
     }
 
-    f_closedir(&dir);
-  }
+    USB_Response(RESP_FILE_END);
+
+    ret = f_findnext(&dir, &fno);
+  } while (ret == FR_OK && fno.fname[0]);
+
+  f_closedir(&dir);
 
   USB_Response(RESP_LOAD_ALL_END);
 }

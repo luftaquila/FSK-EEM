@@ -52,7 +52,7 @@ void mode_energymeter(void) {
   }
 
   char path[36];
-  sprintf(path, "%05u 20%02d-%02d-%02d-%02d-%02d-%02d.log", syslog.id,
+  sprintf(path, "%05u-20%02d-%02d-%02d-%02d-%02d-%02d.log", syslog.id,
           boot.year, boot.month, boot.day, boot.hour, boot.minute, boot.second);
 
   boot_time = boot.day * 86400000 + boot.hour * 3600000 + boot.minute * 60000 +
