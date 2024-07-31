@@ -64,6 +64,8 @@ const uint8_t resp[RESP_COUNT][MAX_LEN_RESP + 1] = {
  * EEM usb data dump mode
  *****************************************************************************/
 void mode_usb(void) {
+  HAL_GPIO_WritePin(LED_STATUS_GPIO_Port, LED_STATUS_Pin, GPIO_PIN_RESET);
+
   /* read device id from the flash */
   device_id_t *devid = (device_id_t *)FLASH_TARGET_PAGE;
 
@@ -83,7 +85,7 @@ void mode_usb(void) {
     static uint32_t cur = 0;
     cur = HAL_GetTick();
 
-    if (tick + 1000 > cur) {
+    if (tick + 500 < cur) {
       tick = cur;
       HAL_GPIO_TogglePin(LED_STATUS_GPIO_Port, LED_STATUS_Pin);
     }
