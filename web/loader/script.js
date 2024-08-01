@@ -16,8 +16,46 @@ async function load_list() {
     return;
   }
 
+  res = res.text.split('$');
+  res.shift();
+
+  if (res.at(-1) !== "OK") {
+    error("데이터 손상", html_strings.data_corrupt);
+    return;
+  }
+
+  res.pop(); // remove OK
+
+  res = res.map(x => {
+    return x.split(' ');
+  });
+
+  res.forEach(x => {
+    let resp = x[0];
+    let size = x[1];
+    let name = x[2];
+
+    if (`$${resp}` !== RESP.FILE_ENTRY || x.length !== 3) {
+      error("데이터 손상", html_strings.data_corrupt);
+      return;
+    }
+  });
+
   console.log(res);
   // TODO
+}
+
+/******************************************************************************
+ * Protocol $LOAD-INFO
+ *****************************************************************************/
+async function load_info() {
+  let res = await transceive(CMD.LOAD_INFO, RESP.OK);
+
+  if (!res) {
+    return;
+  }
+
+  console.log(res);
 }
 
 /******************************************************************************
@@ -38,13 +76,7 @@ async function transceive(query, end) {
     await writer.write(Uint8Array.from(Array.from(query).map(ch => ch.charCodeAt(0))));
     writer.releaseLock();
   } catch (e) {
-    Swal.fire({
-      icon: "error",
-      title: "명령 전송 실패",
-      html: e,
-      confirmButtonText: "확인",
-      customClass: { confirmButton: "btn green" },
-    });
+    error("명령 전송 실패", e);
     writer.releaseLock();
     return false;
   }
@@ -79,13 +111,7 @@ async function transceive(query, end) {
       }
     }
   } catch (e) {
-    Swal.fire({
-      icon: "error",
-      title: "데이터 수신 실패",
-      html: e,
-      confirmButtonText: "확인",
-      customClass: { confirmButton: "btn green" },
-    });
+    error("데이터 수신 실패", e);
     reader.releaseLock();
     return false;
   }
@@ -112,13 +138,7 @@ async function connect() {
     connection = true;
   } catch (e) {
     if (!(e.name === "NotFoundError")) {
-      Swal.fire({
-        icon: "error",
-        title: "장비 연결 실패",
-        html: e,
-        confirmButtonText: "확인",
-        customClass: { confirmButton: "btn green" },
-      });
+      error("장비 연결 실패", e);
     }
 
     return false;
@@ -127,20 +147,12 @@ async function connect() {
   return true;
 }
 
-
 /******************************************************************************
  * Event Listeners
  *****************************************************************************/
 document.addEventListener("DOMContentLoaded", (_e) => {
   if (!("serial" in navigator)) {
-    Swal.fire({
-      icon: "error",
-      title: "WebSerial 미지원",
-      html: html_strings.no_webserial,
-      confirmButtonText: "확인",
-      customClass: { confirmButton: "btn green" },
-    });
-
+    error("WebSerial 미지원", html_strings.no_webserial);
     return;
   }
 
@@ -148,3 +160,15 @@ document.addEventListener("DOMContentLoaded", (_e) => {
   document.getElementById("load-list").addEventListener("click", load_list);
 });
 
+/******************************************************************************
+ * Alert window
+ *****************************************************************************/
+function error(title, html) {
+  Swal.fire({
+    icon: "error",
+    title: title,
+    html: html,
+    confirmButtonText: "확인",
+    customClass: { confirmButton: "btn green" },
+  });
+}
