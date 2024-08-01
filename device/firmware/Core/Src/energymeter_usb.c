@@ -72,6 +72,9 @@ void mode_usb(void) {
     HAL_GPIO_WritePin(LED_SD_ERR_GPIO_Port, LED_SD_ERR_Pin, GPIO_PIN_RESET);
   }
 
+  // it is not important that this failed or not
+  (void)f_setlabel(VOLUME_LABEL);
+
   uint32_t tick = HAL_GetTick();
 
   // we don't need to be super fast here.

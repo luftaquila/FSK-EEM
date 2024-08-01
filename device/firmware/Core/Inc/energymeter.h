@@ -19,6 +19,8 @@
 #define BIT_TOGGLE(target, pos) ((target) ^= (1 << (pos)))
 #define BIT_CHECK(target, pos)  ((target) & (1 << (pos)))
 
+#define VOLUME_LABEL "FSK-EEM"
+
 /******************************************************************************
  * module configuration
  *****************************************************************************/

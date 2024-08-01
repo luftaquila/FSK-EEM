@@ -71,6 +71,9 @@ void mode_energymeter(void) {
     HAL_GPIO_WritePin(LED_SD_ERR_GPIO_Port, LED_SD_ERR_Pin, GPIO_PIN_RESET);
   }
 
+  // it is not important that this failed or not
+  (void)f_setlabel(VOLUME_LABEL);
+
   FIL fp;
 
   if (f_open(&fp, path, FA_CREATE_ALWAYS | FA_WRITE) != FR_OK) {
