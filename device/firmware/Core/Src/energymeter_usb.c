@@ -66,9 +66,6 @@ const uint8_t resp[RESP_COUNT][MAX_LEN_RESP + 1] = {
 void mode_usb(void) {
   HAL_GPIO_WritePin(LED_STATUS_GPIO_Port, LED_STATUS_Pin, GPIO_PIN_RESET);
 
-  /* read device id from the flash */
-  device_id_t *devid = (device_id_t *)FLASH_TARGET_PAGE;
-
   /* init fatfs */
   FATFS fat;
 
@@ -94,8 +91,13 @@ void mode_usb(void) {
       continue;
     }
 
+    /**************************************************************************
+     * PROTOCOL: CMD string (starts with $) +
+     *           one space (ASCII 0x20), if additional parameter(s) exist +
+     *           additional parameter(s) if exist
+     *************************************************************************/
     if (USB_Command(CMD_SET_ID)) {
-      // TODO
+      usb_set_id(UserRxBufferFS + strlen(cmd[CMD_SET_ID]) + 1);
     }
 
     else if (USB_Command(CMD_SET_RTC)) {
@@ -116,6 +118,53 @@ void mode_usb(void) {
 
     usb_flag = FALSE;
   }
+}
+
+/******************************************************************************
+ * set commanded device id to flash
+ * PROTOCOL: 5-byte decimal integer string(00000 ~ 65535) for a new device id
+ *****************************************************************************/
+void usb_set_id(uint8_t *buf) {
+  uint32_t usb_ret;
+
+  FLASH_EraseInitTypeDef erase;
+  erase.TypeErase = FLASH_TYPEERASE_PAGES;
+  erase.PageAddress = FLASH_TARGET_PAGE;
+  erase.NbPages = 1;
+
+  uint32_t page_err = 0;
+
+  // unlock flash
+  if (HAL_FLASH_Unlock() != HAL_OK) {
+    goto flash_err;
+  };
+
+  // erase target sector
+  if (HAL_FLASHEx_Erase(&erase, &page_err) != HAL_OK) {
+    goto flash_err;
+  }
+  
+  // write canary value
+  if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, FLASH_TARGET_PAGE, FLASH_CANARY_DEVICE_ID) != HAL_OK) {
+    goto flash_err;
+  }
+
+  // write device id
+  *(buf + MAX_LEN_DEVICE_ID_STR) = '\0';
+  uint32_t new_id = (uint32_t)atoi((const char *)buf);
+
+  if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, FLASH_TARGET_PAGE + 4, new_id) != HAL_OK) {
+    goto flash_err;
+  }
+
+  USB_Response(RESP_OK);
+  HAL_FLASH_Lock();
+  return;
+
+flash_err:
+  USB_Response(RESP_ERROR);
+  HAL_FLASH_Lock();
+  return;
 }
 
 /******************************************************************************
@@ -217,6 +266,9 @@ void usb_load_all(void) {
 
 /******************************************************************************
  * load one file by its name
+ * PROTOCOL: requested file name's length in decimal integer string +
+ *           one space (ASCII 0x20) +
+ *           requested file name
  *****************************************************************************/
 void usb_load_one(uint8_t *buf) {
   uint8_t usb_ret;

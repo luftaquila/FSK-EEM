@@ -20,6 +20,7 @@
  *****************************************************************************/
 void mode_usb(void);
 
+void usb_set_id(uint8_t *buf);
 void usb_set_rtc(uint8_t *buf);
 void usb_load_list(void);
 void usb_load_all(void);

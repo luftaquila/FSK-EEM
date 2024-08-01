@@ -55,6 +55,8 @@ typedef struct {
 #define DEVICE_ID_INVALID   0xFFFF
 #define DEVICE_ID_BROADCAST 0xFFFE
 
+#define MAX_LEN_DEVICE_ID_STR 5 // 00000 ~ 65535
+
 /* mark packet end magic byte */
 #define MAGIC_PACKET_END 0xAA
 
