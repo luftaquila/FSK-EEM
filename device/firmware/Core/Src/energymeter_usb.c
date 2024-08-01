@@ -96,23 +96,23 @@ void mode_usb(void) {
      *           one space (ASCII 0x20), if additional parameter(s) exist +
      *           additional parameter(s) if exist
      *************************************************************************/
-    if (USB_Command(CMD_SET_ID)) {
+    if (USB_COMMAND(CMD_SET_ID)) {
       usb_set_id(UserRxBufferFS + strlen(cmd[CMD_SET_ID]) + 1);
     }
 
-    else if (USB_Command(CMD_SET_RTC)) {
+    else if (USB_COMMAND(CMD_SET_RTC)) {
       usb_set_rtc(UserRxBufferFS + strlen(cmd[CMD_SET_RTC]) + 1);
     }
 
-    else if (USB_Command(CMD_LOAD_LIST)) {
+    else if (USB_COMMAND(CMD_LOAD_LIST)) {
       usb_load_list();
     }
 
-    else if (USB_Command(CMD_LOAD_ALL)) {
+    else if (USB_COMMAND(CMD_LOAD_ALL)) {
       usb_load_all();
     }
 
-    else if (USB_Command(CMD_LOAD_ONE)) {
+    else if (USB_COMMAND(CMD_LOAD_ONE)) {
       usb_load_one(UserRxBufferFS + strlen(cmd[CMD_LOAD_ONE]) + 1);
     }
 
@@ -157,12 +157,12 @@ void usb_set_id(uint8_t *buf) {
     goto flash_err;
   }
 
-  USB_Response(RESP_OK);
+  USB_RESPONSE(RESP_OK);
   HAL_FLASH_Lock();
   return;
 
 flash_err:
-  USB_Response(RESP_ERROR);
+  USB_RESPONSE(RESP_ERROR);
   HAL_FLASH_Lock();
   return;
 }
@@ -179,7 +179,7 @@ void usb_set_rtc(uint8_t *buf) {
  *****************************************************************************/
 void usb_load_list(void) {
   uint8_t usb_ret;
-  USB_Response(RESP_LIST_START);
+  USB_RESPONSE(RESP_LIST_START);
 
   FILINFO fno;
   DIR dir;
@@ -189,7 +189,7 @@ void usb_load_list(void) {
   fno.lfsize = sizeof(filename);
 
   if (f_findfirst(&dir, &fno, "", "*.log") != FR_OK) {
-    USB_Response(RESP_ERROR);
+    USB_RESPONSE(RESP_ERROR);
     return;
   }
 
@@ -204,7 +204,7 @@ void usb_load_list(void) {
 
   f_closedir(&dir);
 
-  USB_Response(RESP_LIST_END);
+  USB_RESPONSE(RESP_LIST_END);
 }
 
 /******************************************************************************
@@ -212,7 +212,7 @@ void usb_load_list(void) {
  *****************************************************************************/
 void usb_load_all(void) {
   uint8_t usb_ret;
-  USB_Response(RESP_LOAD_ALL_START);
+  USB_RESPONSE(RESP_LOAD_ALL_START);
 
   FILINFO fno;
   DIR dir;
@@ -222,7 +222,7 @@ void usb_load_all(void) {
   fno.lfsize = sizeof(filename);
 
   if (f_findfirst(&dir, &fno, "", "*.log") != FR_OK) {
-    USB_Response(RESP_ERROR);
+    USB_RESPONSE(RESP_ERROR);
     return;
   }
 
@@ -235,7 +235,7 @@ void usb_load_all(void) {
     FIL fp;
 
     if (f_open(&fp, fno.lfname, FA_READ) != FR_OK) {
-      USB_Response(RESP_ERROR);
+      USB_RESPONSE(RESP_ERROR);
       return;
     };
 
@@ -245,8 +245,7 @@ void usb_load_all(void) {
       uint32_t read;
 
       if (f_read(&fp, UserTxBufferFS, APP_TX_DATA_SIZE, (UINT *)&read) != FR_OK) {
-        USB_Response(RESP_ERROR);
-        USB_Response(RESP_FILE_END);
+        USB_RESPONSE(RESP_ERROR);
         return;
       }
 
@@ -254,14 +253,14 @@ void usb_load_all(void) {
       USB_Transmit(UserTxBufferFS, read);
     }
 
-    USB_Response(RESP_FILE_END);
+    USB_RESPONSE(RESP_FILE_END);
 
     ret = f_findnext(&dir, &fno);
   } while (ret == FR_OK && fno.fname[0]);
 
   f_closedir(&dir);
 
-  USB_Response(RESP_LOAD_ALL_END);
+  USB_RESPONSE(RESP_LOAD_ALL_END);
 }
 
 /******************************************************************************
@@ -283,7 +282,7 @@ void usb_load_one(uint8_t *buf) {
   FIL fp;
 
   if (f_open(&fp, (const char *)buf, FA_READ) != FR_OK) {
-    USB_Response(RESP_ERROR);
+    USB_RESPONSE(RESP_ERROR);
     return;
   };
 
@@ -296,8 +295,7 @@ void usb_load_one(uint8_t *buf) {
     uint32_t read;
 
     if (f_read(&fp, UserTxBufferFS, APP_TX_DATA_SIZE, (UINT *)&read) != FR_OK) {
-      USB_Response(RESP_ERROR);
-      USB_Response(RESP_FILE_END);
+      USB_RESPONSE(RESP_ERROR);
       return;
     }
 
@@ -305,5 +303,5 @@ void usb_load_one(uint8_t *buf) {
     USB_Transmit(UserTxBufferFS, read);
   }
 
-  USB_Response(RESP_FILE_END);
+  USB_RESPONSE(RESP_FILE_END);
 }

@@ -9,10 +9,10 @@
 #define MAX_LEN_CMD  15
 #define MAX_LEN_RESP 15
 
-#define USB_Command(CMD) \
+#define USB_COMMAND(CMD) \
   (strncmp((const char *)UserRxBufferFS, cmd[CMD], strlen(cmd[CMD])) == 0)
 
-#define USB_Response(RESP) \
+#define USB_RESPONSE(RESP) \
   USB_Transmit((uint8_t *)resp[RESP], strlen((const char *)resp[RESP]))
 
 /******************************************************************************
