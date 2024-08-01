@@ -20,6 +20,7 @@ extern uint8_t UserTxBufferFS[];
 typedef enum {
   CMD_SET_ID,
   CMD_SET_RTC,
+  CMD_LOAD_INFO,
   CMD_LOAD_LIST,
   CMD_LOAD_ALL,
   CMD_LOAD_ONE,
@@ -29,6 +30,7 @@ typedef enum {
 const char cmd[CMD_COUNT][MAX_LEN_CMD + 1] = {
   "$SET-ID",
   "$SET-RTC",
+  "$LOAD-INFO",
   "$LOAD-LIST",
   "$LOAD-ALL",
   "$LOAD-ONE",
@@ -36,10 +38,6 @@ const char cmd[CMD_COUNT][MAX_LEN_CMD + 1] = {
 
 /* USB CDC response from here */
 typedef enum {
-  RESP_LIST_START,
-  RESP_LIST_END,
-  RESP_LOAD_ALL_START,
-  RESP_LOAD_ALL_END,
   RESP_FILE_ENTRY,
   RESP_FILE_START,
   RESP_FILE_END,
@@ -49,10 +47,6 @@ typedef enum {
 } usb_response_type_t;
 
 const uint8_t resp[RESP_COUNT][MAX_LEN_RESP + 1] = {
-  "$LIST-START",
-  "$LIST-END",
-  "$LOAD-ALL-START",
-  "$LOAD-ALL-END",
   "$FILE-ENTRY",
   "$FILE-START",
   "$FILE-END",
@@ -102,6 +96,10 @@ void mode_usb(void) {
 
     else if (USB_COMMAND(CMD_SET_RTC)) {
       usb_set_rtc(UserRxBufferFS + strlen(cmd[CMD_SET_RTC]) + 1);
+    }
+
+    else if (USB_COMMAND(CMD_LOAD_INFO)) {
+      usb_load_info();
     }
 
     else if (USB_COMMAND(CMD_LOAD_LIST)) {
@@ -175,11 +173,18 @@ void usb_set_rtc(uint8_t *buf) {
 }
 
 /******************************************************************************
+ * load device id and RTC time
+ *****************************************************************************/
+void usb_load_info(void) {
+
+  // TODO
+}
+
+/******************************************************************************
  * load all saved files list
  *****************************************************************************/
 void usb_load_list(void) {
   uint8_t usb_ret;
-  USB_RESPONSE(RESP_LIST_START);
 
   FILINFO fno;
   DIR dir;
@@ -204,7 +209,7 @@ void usb_load_list(void) {
 
   f_closedir(&dir);
 
-  USB_RESPONSE(RESP_LIST_END);
+  USB_RESPONSE(RESP_OK);
 }
 
 /******************************************************************************
@@ -212,7 +217,6 @@ void usb_load_list(void) {
  *****************************************************************************/
 void usb_load_all(void) {
   uint8_t usb_ret;
-  USB_RESPONSE(RESP_LOAD_ALL_START);
 
   FILINFO fno;
   DIR dir;
@@ -260,7 +264,7 @@ void usb_load_all(void) {
 
   f_closedir(&dir);
 
-  USB_RESPONSE(RESP_LOAD_ALL_END);
+  USB_RESPONSE(RESP_OK);
 }
 
 /******************************************************************************
