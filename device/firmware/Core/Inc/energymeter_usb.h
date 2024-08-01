@@ -26,5 +26,7 @@ void usb_load_info(void);
 void usb_load_list(void);
 void usb_load_all(void);
 void usb_load_one(uint8_t *buf);
+void usb_delete_all(void);
+void usb_delete_one(uint8_t *buf);
 
 #endif /* CORE_INC_ENERGYMETER_USB_H */

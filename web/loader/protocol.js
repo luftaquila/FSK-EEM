@@ -9,6 +9,8 @@ const CMD = {
   LOAD_LIST: "$LOAD-LIST",
   LOAD_ALL: "$LOAD-ALL",
   LOAD_ONE: "$LOAD-ONE",
+  DELETE_ALL: "$DELETE-ALL",
+  DELETE_ONE: "$DELETE-ONE",
 };
 
 const RESP = {

@@ -24,6 +24,8 @@ typedef enum {
   CMD_LOAD_LIST,
   CMD_LOAD_ALL,
   CMD_LOAD_ONE,
+  CMD_DELETE_ALL,
+  CMD_DELETE_ONE,
   CMD_COUNT,
 } usb_cmd_type_t;
 
@@ -34,6 +36,8 @@ const char cmd[CMD_COUNT][MAX_LEN_CMD + 1] = {
   "$LOAD-LIST",
   "$LOAD-ALL",
   "$LOAD-ONE",
+  "$DELETE-ALL",
+  "$DELETE-ONE",
 };
 
 /* USB CDC response from here */
@@ -308,4 +312,23 @@ void usb_load_one(uint8_t *buf) {
   }
 
   USB_RESPONSE(RESP_FILE_END);
+}
+
+/******************************************************************************
+ * DELETE all saved files
+ *****************************************************************************/
+void usb_delete_all(void) {
+  // TODO
+}
+
+/******************************************************************************
+ * DELETE one file by its name
+ * PROTOCOL:
+ *      QUERY: requested file name's length in decimal integer string +
+ *             one space (ASCII 0x20) +
+ *             requested file name
+ *   RESPONSE: $OK or $ERROR
+ *****************************************************************************/
+void usb_delete_one(uint8_t *buf) {
+  // TODO
 }
