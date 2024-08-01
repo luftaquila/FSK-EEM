@@ -127,7 +127,9 @@ void mode_usb(void) {
 
 /******************************************************************************
  * set commanded device id to flash
- * PROTOCOL: 5-byte decimal integer string(00000 ~ 65535) for a new device id
+ * PROTOCOL:
+ *      QUERY: 5-byte decimal integer string(00000 ~ 65535) for a new device id
+ *   RESPONSE: $OK or $ERROR
  *****************************************************************************/
 void usb_set_id(uint8_t *buf) {
   uint8_t usb_ret;
@@ -148,7 +150,7 @@ void usb_set_id(uint8_t *buf) {
   if (HAL_FLASHEx_Erase(&erase, &page_err) != HAL_OK) {
     goto flash_err;
   }
-  
+
   // write canary value
   if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, FLASH_TARGET_PAGE, FLASH_CANARY_DEVICE_ID) != HAL_OK) {
     goto flash_err;
@@ -180,7 +182,9 @@ void usb_set_rtc(uint8_t *buf) {
 }
 
 /******************************************************************************
- * load device id and RTC time
+ * load device id, disk free space and RTC time
+ * PROTOCOL:
+ *   RESPONSE: <device id> <total sectors> <free sectors> <bytes per sector>
  *****************************************************************************/
 void usb_load_info(void) {
 
@@ -189,6 +193,8 @@ void usb_load_info(void) {
 
 /******************************************************************************
  * load all saved files list
+ * PROTOCOL:
+ *   RESPONSE: [$FILE-ENTRY <size> <name>] * n + $OK or $ERROR
  *****************************************************************************/
 void usb_load_list(void) {
   uint8_t usb_ret;
@@ -221,6 +227,8 @@ void usb_load_list(void) {
 
 /******************************************************************************
  * load all saved files
+ * PROTOCOL:
+ *   RESPONSE: [$FILE-ENTRY <size> <name> <content>$FILE-END] * n + $OK or $ERROR
  *****************************************************************************/
 void usb_load_all(void) {
   uint8_t usb_ret;
@@ -276,9 +284,9 @@ void usb_load_all(void) {
 
 /******************************************************************************
  * load one file by its name
- * PROTOCOL: requested file name's length in decimal integer string +
- *           one space (ASCII 0x20) +
- *           requested file name
+ * PROTOCOL:
+ *      QUERY: <filename length in decimal integer string> <filename>
+ *   RESPONSE: $FILE-START <size> <content>$FILE-END or $ERROR
  *****************************************************************************/
 void usb_load_one(uint8_t *buf) {
   uint8_t usb_ret;
