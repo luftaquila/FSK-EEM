@@ -201,5 +201,6 @@ static inline void debug_print(const char *fmt, ...) {
  * function prototypes
  *****************************************************************************/
 void mode_energymeter(void);
+void rtc_read(datetime *time);
 
 #endif /* CORE_INC_ENERGYMETER_H */

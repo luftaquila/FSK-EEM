@@ -190,3 +190,23 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
 
   adc_flag = TRUE;
 }
+
+/******************************************************************************
+ * RTC read current datetime
+ *****************************************************************************/
+void rtc_read(datetime *time) {
+  RTC_DateTypeDef rtc_date;
+  RTC_TimeTypeDef rtc_time;
+
+  HAL_RTC_GetTime(&hrtc, &rtc_time, FORMAT_BIN);
+  HAL_RTC_GetDate(&hrtc, &rtc_date, FORMAT_BIN);
+
+  time->second = rtc_time.Seconds;
+  time->minute = rtc_time.Minutes;
+  time->hour = rtc_time.Hours;
+  time->day = rtc_date.Date;
+  time->month = rtc_date.Month;
+  time->year = rtc_date.Year;
+
+  return;
+}

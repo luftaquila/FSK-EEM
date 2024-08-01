@@ -184,11 +184,35 @@ void usb_set_rtc(uint8_t *buf) {
 /******************************************************************************
  * load device id, disk free space and RTC time
  * PROTOCOL:
- *   RESPONSE: <device id> <total sectors> <free sectors> <bytes per sector>
+ *   RESPONSE: <device id> <total sectors> <free sectors> <bytes per sector> YY-MM-DD-HH-mm-ss$OK or $ERROR
  *****************************************************************************/
 void usb_load_info(void) {
+  uint8_t usb_ret;
 
-  // TODO
+  /* read device id from the flash */
+  device_id_t *devid = (device_id_t *)FLASH_TARGET_PAGE;
+
+  /* load disk space info */
+  FATFS *fs;
+  uint32_t free;
+
+  if (f_getfree("", (DWORD *)&free, &fs) != FR_OK) {
+    USB_RESPONSE(RESP_ERROR);
+    return;
+  }
+
+  uint32_t sector_total = (fs->n_fatent - 2) * fs->csize;
+  uint32_t sector_free = free * fs->csize;
+
+  datetime cur;
+  rtc_read(&cur);
+
+  sprintf((char *)UserTxBufferFS, "%05lu %lu %lu %u %02d-%02d-%02d-%02d-%02d-%02d",
+          devid->id, sector_total, sector_free, _MAX_SS,
+          cur.year, cur.month, cur.day, cur.hour, cur.minute, cur.second);
+
+  USB_Transmit(UserTxBufferFS, strlen((const char *)UserTxBufferFS));
+  USB_RESPONSE(RESP_OK);
 }
 
 /******************************************************************************
