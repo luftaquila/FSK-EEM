@@ -130,7 +130,7 @@ void mode_usb(void) {
  * PROTOCOL: 5-byte decimal integer string(00000 ~ 65535) for a new device id
  *****************************************************************************/
 void usb_set_id(uint8_t *buf) {
-  uint32_t usb_ret;
+  uint8_t usb_ret;
 
   FLASH_EraseInitTypeDef erase;
   erase.TypeErase = FLASH_TYPEERASE_PAGES;
@@ -240,7 +240,7 @@ void usb_load_all(void) {
   FRESULT ret;
 
   do {
-    sprintf((char *)UserTxBufferFS, "%s %lu %s", resp[RESP_FILE_ENTRY], fno.fsize, fno.lfname);
+    sprintf((char *)UserTxBufferFS, "%s %lu %s ", resp[RESP_FILE_ENTRY], fno.fsize, fno.lfname);
     USB_Transmit(UserTxBufferFS, strlen((const char *)UserTxBufferFS));
 
     FIL fp;
@@ -297,7 +297,7 @@ void usb_load_one(uint8_t *buf) {
     return;
   };
 
-  sprintf((char *)UserTxBufferFS, "%s %lu", resp[RESP_FILE_START], f_size(&fp));
+  sprintf((char *)UserTxBufferFS, "%s %lu ", resp[RESP_FILE_START], f_size(&fp));
   USB_Transmit(UserTxBufferFS, strlen((const char *)UserTxBufferFS));
 
   uint32_t total_read = 0;
