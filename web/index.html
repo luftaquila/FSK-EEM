@@ -33,16 +33,21 @@
       <h1><i class="fa-fw fa-solid fa-cash-register"></i>에너지미터 관리</h1>
       <div class="content">
         <div>
-          <h2><i class="fa-fw fa-solid fa-circle-info"></i>장치 정보</h2>
+          <h2><i class="fa-fw fa-solid fa-gear"></i>장치 관리</h2>
           <div class="section">
             <div>
-              <span id="connect" class='btn blue'><i class="fa-fw fa-brands fa-usb"></i>장치 연결</span>
-              <span id="set-id" class='btn orange'><i class="fa-fw fa-solid fa-car-side"></i>ID 설정</span>
+              <span id="connect" class='btn red'><i class="fa-fw fa-brands fa-usb"></i>장치 연결</span>
+              <span id="set-id" class='btn orange'><i class="fa-fw fa-solid fa-car-side"></i>장치 ID 설정</span>
               <span id="set-rtc" class='btn orange'><i class="fa-fw fa-regular fa-clock"></i>시계 동기화</span>
             </div>
+          </div>
+        </div>
+        <div>
+          <h2><i class="fa-fw fa-solid fa-circle-info"></i>연결된 장치 정보</h2>
+          <div class="section">
             <div style="margin-top: 1rem;">
-              <span class="device-info">
-                <i id="connection" class="fa-fw fa-solid fa-circle" style="color: red;"></i>
+              <span class="device-info" style="margin-left: 1.5rem;">
+                <i id="connection" class="fa-fw fa-solid fa-hashtag"></i>
                 ID: <span id="device-id">N/A</span>
               </span>
               <span class="device-info">
@@ -58,14 +63,21 @@
           </div>
         </div>
         <div style="margin-top: 1rem;">
-        </div>
-        <div style="margin-top: 1rem;">
           <h2><i class="fa-fw fa-solid fa-file-waveform"></i>로그 파일 관리</h2>
           <div class="section">
-            <div>
-              <span id="load-list" class='btn green'><i class="fa-fw fa-solid fa-arrows-rotate"></i>새로고침</span>
+            <div style="margin-top: .2rem;">
+              <span id="load-list" class='btn blue'><i class="fa-fw fa-solid fa-arrows-rotate"></i>새로고침</span>
               <span id="load-all" class='btn green'><i class="fa-fw fa-solid fa-file-arrow-down"></i>전체 다운로드</span>
               <span id="delete-all" class='btn red'><i class="fa-fw fa-regular fa-trash-can"></i>전체 삭제</span>
+              <span class="device-info" style="margin-left: 2rem;">
+                <i class="fa-fw fa-solid fa-download"></i>
+                <span id="bytes-downloaded">- KB</span>
+                (<span id="link-speed">- KB</span> / s)
+              </span>
+              <span class="device-info">
+                <i class="fa-fw fa-regular fa-hourglass-half"></i>
+                <span id="time-remaining">-</span> s left
+              </span>
             </div>
             <div>
               <table id="file-list">

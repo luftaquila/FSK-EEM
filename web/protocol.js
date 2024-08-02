@@ -115,6 +115,8 @@ async function cmd_load_list() {
     return false;
   }
 
+  await cmd_load_info();
+
   let res = await transceive(CMD.LOAD_LIST, RESP.OK);
 
   if (!res) {
@@ -123,8 +125,6 @@ async function cmd_load_list() {
 
   toastr.success('파일 목록 수신 완료');
   ui_load_list(res);
-
-  await cmd_load_info();
 }
 
 /******************************************************************************
@@ -265,7 +265,7 @@ async function transceive(query, end) {
     while (port && port.readable) {
       const { value, done } = await Promise.race([
         reader.read(),
-        new Promise((_, reject) => setTimeout(reject, QUERY_TIMEOUT, new Error("Command Response Timeout")))
+        new Promise((_, reject) => setTimeout(reject, QUERY_TIMEOUT, new Error("Response Timeout")))
       ]);
 
       if (done) {

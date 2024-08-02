@@ -17,7 +17,8 @@ async function check_connection() {
       }]
     });
 
-    document.getElementById("connection").style.color = "green";
+    document.getElementById("connect").classList.remove('red', 'blue');
+    document.getElementById("connect").classList.add('green');
     toastr.success('장치 연결 성공');
 
     // disconnect event handler
@@ -27,7 +28,8 @@ async function check_connection() {
       clock = undefined;
 
       document.getElementById("device-id").innerText = "N/A";
-      document.getElementById("connection").style.color = "red";
+      document.getElementById("connect").classList.remove('green');
+      document.getElementById("connect").classList.add('red');
       toastr.error(`장치 연결 해제`);
     });
 
@@ -105,7 +107,7 @@ function ui_load_info(res) {
   let century = Math.floor(new Date().getFullYear() / 100);
 
   clock = new Date(Date.parse(`${century}${date}T${time}`));
-  
+
   document.getElementById("device-clock").innerHTML = clock.format("yyyy-mm-dd HH:MM:ss").replace(' ', '&ensp;');
 }
 
