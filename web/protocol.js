@@ -28,7 +28,7 @@ const DEVICE_ID_INVALID = 0xFFFF;
 const DEVICE_ID_BROADCAST = 0xFFFE;
 
 const QUERY_TIMEOUT = 500;
-const QUERY_TIMEOUT_LONG = 60 * 60 * 1000; // 1 hr
+const QUERY_TIMEOUT_LONG = 5 * 60 * 1000; // 5 min
 
 /******************************************************************************
  * Protocol $SET-ID

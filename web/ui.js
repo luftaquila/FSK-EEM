@@ -147,7 +147,7 @@ function ui_load_list(res) {
       return;
     }
 
-    table.rows.add([name, format_byte(size), name]);
+    table.insert({ data: [[ name, format_byte(size), name ]] });
   });
 }
 
