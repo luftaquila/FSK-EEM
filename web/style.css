@@ -36,8 +36,9 @@ article {
   padding: 1rem;
   background-color: white;
   border-radius: 10px;
-  min-width: 320px;
   width: -webkit-fill-available;
+  min-width: 900px;
+  max-width: 1200px;
 }
 
 article h1 {
@@ -84,6 +85,11 @@ input[type=number] {
   padding: 4px 12px 2px 12px;
 }
 
+.btn.small {
+  padding: 2px 10px 0px 10px;
+  margin: 0px 8px 4px 8px;
+}
+
 .connected {
   color: green;
 }
@@ -91,4 +97,8 @@ input[type=number] {
 span.device-info {
   margin-left: 0.5rem;
   margin-right: 1.5rem;
+}
+
+table#file-list td {
+  vertical-align: middle;
 }

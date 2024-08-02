@@ -28,6 +28,7 @@ const DEVICE_ID_INVALID = 0xFFFF;
 const DEVICE_ID_BROADCAST = 0xFFFE;
 
 const QUERY_TIMEOUT = 500;
+const QUERY_TIMEOUT_LONG = 60 * 60 * 1000; // 1 hr
 
 /******************************************************************************
  * Protocol $SET-ID
@@ -117,7 +118,7 @@ async function cmd_load_list() {
 
   await cmd_load_info();
 
-  let res = await transceive(CMD.LOAD_LIST, RESP.OK);
+  let res = await transceive(CMD.LOAD_LIST, RESP.OK, 5000);
 
   if (!res) {
     return false;
@@ -140,7 +141,7 @@ async function cmd_load_all() {
     return false;
   }
 
-  let res = await transceive(CMD.LOAD_ALL, RESP.OK);
+  let res = await transceive(CMD.LOAD_ALL, RESP.OK, QUERY_TIMEOUT_LONG);
 
   if (!res) {
     return false;
@@ -165,7 +166,7 @@ async function cmd_load_one(filename) {
   }
 
   let query = `${CMD.LOAD_ONE} ${filename.length} ${filename}`;
-  let res = await transceive(query, RESP.FILE_END);
+  let res = await transceive(query, RESP.FILE_END, QUERY_TIMEOUT_LONG);
 
   if (!res) {
     return false;
@@ -238,7 +239,7 @@ async function cmd_delete_one(filename) {
 /******************************************************************************
  * Transmit query string and return response. end: stream end string
  *****************************************************************************/
-async function transceive(query, end) {
+async function transceive(query, end, timeout = QUERY_TIMEOUT) {
   let reader;
   let writer;
 
@@ -265,7 +266,7 @@ async function transceive(query, end) {
     while (port && port.readable) {
       const { value, done } = await Promise.race([
         reader.read(),
-        new Promise((_, reject) => setTimeout(reject, QUERY_TIMEOUT, new Error("Response Timeout")))
+        new Promise((_, reject) => setTimeout(reject, timeout, new Error("Response Timeout")))
       ]);
 
       if (done) {
@@ -283,7 +284,7 @@ async function transceive(query, end) {
     }
   } catch (e) {
     reader.releaseLock();
-    error("명령 응답 수신 실패", `cmd: ${query}<br>error: ${e}`);
+    error("명령 응답 수신 실패", `cmd: ${query}<br>error: ${e}<br>response: ${receive.text}`);
     return false;
   }
 

@@ -23,6 +23,10 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css"
     integrity="sha512-3pIirOrwegjM6erE5gPSwkUzO+3cTjpnV9lexlNZqvupR64iZBnOOTiiLPb9M36zpMScbmUNIcHUqKD47M719g=="
     crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/simple-datatables/9.0.4/style.min.css"
+    integrity="sha512-xL14Bp+lJcp38H+s08588Z3aCfnTCs0p9TkKm//bAvwCq8bOzvbJJV+XB28fVl1oYaIvbvfe5TKlCFs8EWo4yA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+
   <link rel="stylesheet" href="btn.css">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -64,7 +68,7 @@
         </div>
         <div style="margin-top: 1rem;">
           <h2><i class="fa-fw fa-solid fa-file-waveform"></i>로그 파일 관리</h2>
-          <div class="section">
+          <div class="section" style="margin-bottom: 0rem;">
             <div style="margin-top: .2rem;">
               <span id="load-list" class='btn blue'><i class="fa-fw fa-solid fa-arrows-rotate"></i>새로고침</span>
               <span id="load-all" class='btn green'><i class="fa-fw fa-solid fa-file-arrow-down"></i>전체 다운로드</span>
@@ -79,8 +83,13 @@
                 <span id="time-remaining">-</span> s left
               </span>
             </div>
-            <div>
+            <div style="margin-top: 1rem;">
               <table id="file-list">
+                <thead>
+                  <th>파일명</th>
+                  <th>크기</th>
+                  <th data-sortable="false" style="text-align: center;">관리</th>
+                </thead>
               </table>
             </div>
           </div>
@@ -99,6 +108,9 @@
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"
     integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-datatables/9.0.4/simple-datatables.min.js"
+    integrity="sha512-39DKbQRQKqKfleTshpxLXjvrL45vaEgproKjWoCiuBTgp5ugJpCtLM+j1nHU6FKIcAa9Bu6O5aTtw8qB+K9bBA=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
   <script src="strings.js"></script>

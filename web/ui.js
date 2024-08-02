@@ -129,6 +129,9 @@ function ui_load_list(res) {
     return x.split(' ');
   });
 
+  // clear the table
+  table.data.data = [];
+
   res.forEach(x => {
     let resp = x[0];
     let size = x[1];
@@ -136,12 +139,16 @@ function ui_load_list(res) {
 
     if (`$${resp}` !== RESP.FILE_ENTRY || x.length !== 3) {
       error("데이터 손상", "수신한 데이터가 손상되었습니다.");
+
+      // clear the table
+      table.data.data = [];
+      table.refresh();
+
       return;
     }
-  });
 
-  console.log(res);
-  // TODO
+    table.rows.add([name, format_byte(size), name]);
+  });
 }
 
 /******************************************************************************

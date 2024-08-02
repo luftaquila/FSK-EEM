@@ -1,3 +1,5 @@
+let table = undefined;
+
 /******************************************************************************
  * Event Listeners
  *****************************************************************************/
@@ -7,11 +9,32 @@ document.addEventListener("DOMContentLoaded", (_e) => {
     return;
   }
 
+  table = new simpleDatatables.DataTable("#file-list", {
+    columns: [
+      { select: 0, sort: "asc" },
+      { select: 2, type: "string", render: render_buttons },
+    ],
+  });
+
   document.getElementById("connect").addEventListener("click", check_connection);
   document.getElementById("set-id").addEventListener("click", ui_cmd_set_id);
   document.getElementById("set-rtc").addEventListener("click", cmd_set_rtc);
   document.getElementById("load-list").addEventListener("click", cmd_load_list);
+  document.getElementById("load-all").addEventListener("click", cmd_load_all);
+  document.getElementById("delete-all").addEventListener("click", cmd_delete_all);
 });
+
+/******************************************************************************
+ * Table cell button renderer
+ *****************************************************************************/
+function render_buttons(data, _cell, _idx_row, _idx_cell) {
+  return `
+    <div style="text-align: center">
+      <span class="btn green small" onclick="cmd_load_one('${data}')"><i class="fa-fw fa-solid fa-download"></i>다운로드</span>
+      <span class="btn red small" onclick="cmd_delete_one('${data}')"><i class="fa-fw fa-solid fa-trash"></i>삭제</span>
+    </div>
+`;
+}
 
 /************************************************************************************
  * format bytes to human readable text
