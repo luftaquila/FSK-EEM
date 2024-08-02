@@ -351,19 +351,58 @@ void usb_load_one(uint8_t *buf) {
 
 /******************************************************************************
  * DELETE all saved files
+ * PROTOCOL:
+ *   RESPONSE: $OK or $ERROR
  *****************************************************************************/
 void usb_delete_all(void) {
-  // TODO
+  uint8_t usb_ret;
+
+  FILINFO fno;
+  DIR dir;
+
+  char filename[_MAX_LFN];
+  fno.lfname = filename;
+  fno.lfsize = sizeof(filename);
+
+  if (f_findfirst(&dir, &fno, "", "*.log") != FR_OK) {
+    USB_RESPONSE(RESP_ERROR);
+    return;
+  }
+
+  FRESULT ret;
+
+  do {
+    if (f_unlink(fno.lfname) != FR_OK) {
+      USB_RESPONSE(RESP_ERROR);
+      return;
+    }
+
+    ret = f_findnext(&dir, &fno);
+  } while (ret == FR_OK && fno.fname[0]);
+
+  USB_RESPONSE(RESP_OK);
 }
 
 /******************************************************************************
  * DELETE one file by its name
  * PROTOCOL:
- *      QUERY: requested file name's length in decimal integer string +
- *             one space (ASCII 0x20) +
- *             requested file name
+ *      QUERY: <filename length in decimal integer string> <filename>
  *   RESPONSE: $OK or $ERROR
  *****************************************************************************/
 void usb_delete_one(uint8_t *buf) {
-  // TODO
+  uint8_t usb_ret;
+
+  uint8_t *end = (uint8_t *)strchr((const char *)buf, ' ');
+  *end = '\0';
+
+  int namelen = atoi((const char *)buf);
+  buf = end + 1;
+  *(buf + namelen) = '\0';
+
+  if (f_unlink((const char *)buf) != FR_OK) {
+    USB_RESPONSE(RESP_ERROR);
+    return;
+  };
+
+  USB_RESPONSE(RESP_OK);
 }
