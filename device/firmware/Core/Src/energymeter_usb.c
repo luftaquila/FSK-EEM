@@ -143,7 +143,12 @@ void usb_set_id(uint8_t *buf) {
 
   // unlock flash
   if (HAL_FLASH_Unlock() != HAL_OK) {
-    goto flash_err;
+    // do fail only if flash is yet locked.
+    //   on the second call , HAL_FLASH_Unlock() fails and the flash is already unlocked.
+    //   suspect HAL_FLASH_Lock() is not working
+    if (FLASH->CR & FLASH_CR_LOCK) {
+      goto flash_err;
+    }
   };
 
   // erase target sector
@@ -164,13 +169,13 @@ void usb_set_id(uint8_t *buf) {
     goto flash_err;
   }
 
-  USB_RESPONSE(RESP_OK);
   HAL_FLASH_Lock();
+  USB_RESPONSE(RESP_OK);
   return;
 
 flash_err:
-  USB_RESPONSE(RESP_ERROR);
   HAL_FLASH_Lock();
+  USB_RESPONSE(RESP_ERROR);
   return;
 }
 
