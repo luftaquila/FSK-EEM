@@ -10,6 +10,16 @@ const QUERY_TIMEOUT = 500;
  * Protocol $LOAD-LIST
  *****************************************************************************/
 async function load_list() {
+  if (!port || !connection) {
+    let info = await connect();
+
+    if (!info) {
+      return false;
+    } else {
+      set_info(info);
+    };
+  }
+
   let res = await transceive(CMD.LOAD_LIST, RESP.OK);
 
   if (!res) {
@@ -46,28 +56,9 @@ async function load_list() {
 }
 
 /******************************************************************************
- * Protocol $LOAD-INFO
- *****************************************************************************/
-async function load_info() {
-  let res = await transceive(CMD.LOAD_INFO, RESP.OK);
-
-  if (!res) {
-    return;
-  }
-
-  console.log(res);
-}
-
-/******************************************************************************
  * Transmit query string and return response. end: stream end string
  *****************************************************************************/
 async function transceive(query, end) {
-  if (!port || !connection) {
-    if (!await connect()) {
-      return false;
-    };
-  }
-
   let reader;
   let writer;
 
@@ -136,6 +127,8 @@ async function connect() {
 
     await port.open({ baudRate: 9600 });
     connection = true;
+
+    return await transceive(CMD.LOAD_INFO, RESP.OK);
   } catch (e) {
     if (!(e.name === "NotFoundError")) {
       error("장비 연결 실패", e);
@@ -143,8 +136,6 @@ async function connect() {
 
     return false;
   }
-
-  return true;
 }
 
 /******************************************************************************
@@ -159,6 +150,14 @@ document.addEventListener("DOMContentLoaded", (_e) => {
   document.getElementById("connect").addEventListener("click", connect);
   document.getElementById("load-list").addEventListener("click", load_list);
 });
+
+/******************************************************************************
+ * Alert window
+ *****************************************************************************/
+function set_info(info) {
+  console.log(info);
+  // TODO
+}
 
 /******************************************************************************
  * Alert window
