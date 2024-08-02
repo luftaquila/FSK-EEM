@@ -243,6 +243,8 @@ async function transceive(query, end, timeout = QUERY_TIMEOUT) {
   let reader;
   let writer;
 
+  console.log(query);
+
   try {
     writer = port.writable.getWriter();
     await writer.write(Uint8Array.from(Array.from(query).map(ch => ch.charCodeAt(0))));
@@ -289,7 +291,7 @@ async function transceive(query, end, timeout = QUERY_TIMEOUT) {
   }
 
   receive.time = new Date() - receive.time;
-  receive.speed = (receive.bytes.length / 1024) / receive.time * 1000;
+  receive.speed = receive.bytes.length / receive.time * 1000;
 
   reader.releaseLock();
 
@@ -297,6 +299,11 @@ async function transceive(query, end, timeout = QUERY_TIMEOUT) {
     error("장치 오류", `cmd: ${query}<br>response: ${receive.text}`);
     return false;
   }
+
+  console.log(receive.text);
+
+  document.getElementById("bytes-downloaded").innerText = format_byte(receive.bytes.length);
+  document.getElementById("link-speed").innerText = format_byte(receive.speed);
 
   return receive;
 }

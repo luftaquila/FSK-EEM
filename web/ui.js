@@ -25,7 +25,7 @@ async function check_connection() {
     port.addEventListener("disconnect", (_e) => {
       port = undefined;
       connection = false;
-      clock = undefined;
+      clock_diff = undefined;
 
       document.getElementById("device-id").innerText = "N/A";
       document.getElementById("connect").classList.remove('green');
@@ -106,9 +106,9 @@ function ui_load_info(res) {
   let time = rtc.substring(9).replace(/-/g, ':');
   let century = Math.floor(new Date().getFullYear() / 100);
 
-  clock = new Date(Date.parse(`${century}${date}T${time}`));
+  clock_diff = new Date() - new Date(Date.parse(`${century}${date}T${time}`));
 
-  document.getElementById("device-clock").innerHTML = clock.format("yyyy-mm-dd HH:MM:ss").replace(' ', '&ensp;');
+  document.getElementById("device-clock").innerHTML = new Date(new Date() - clock_diff).format("yyyy-mm-dd HH:MM:ss").replace(' ', '&ensp;');
 }
 
 /******************************************************************************
@@ -229,7 +229,6 @@ function ui_load_all(res) {
  * $LOAD-ONE response UI handler
  *****************************************************************************/
 function ui_load_one(res, filename) {
-  console.log(filename)
   const resp_file_entry = Uint8Array.from(Array.from(RESP.FILE_START).map(ch => ch.charCodeAt(0)));
 
   let i = 0;
@@ -268,12 +267,11 @@ function ui_load_one(res, filename) {
 /******************************************************************************
  * device clock updater
  *****************************************************************************/
-let clock = undefined;
+let clock_diff = undefined;
 
 setInterval(() => {
-  if (clock) {
-    clock.setSeconds(clock.getSeconds() + 1);
-    document.getElementById("device-clock").innerHTML = clock.format("yyyy-mm-dd HH:MM:ss").replace(' ', '&ensp;');
+  if (clock_diff) {
+    document.getElementById("device-clock").innerHTML = new Date(new Date() - clock_diff).format("yyyy-mm-dd HH:MM:ss").replace(' ', '&ensp;');
   }
 }, 1000);
 
