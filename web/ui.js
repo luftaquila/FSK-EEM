@@ -132,6 +132,12 @@ function ui_load_list(res) {
   // clear the table
   table.data.data = [];
 
+  // there is no file
+  if (res.length === 1 && res[0][1] === '0') {
+    toastr.warning('저장된 로그 파일 없음');
+    return;
+  }
+
   res.forEach(x => {
     let resp = x[0];
     let size = x[1];
@@ -211,6 +217,6 @@ toastr.options = {
   closeButton: false,
   newestOnTop: false,
   // progressBar: true,
-  positionClass: "toast-bottom-right",
+  // positionClass: "toast-bottom-right",
   debug: false,
 };
