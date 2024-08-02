@@ -199,7 +199,7 @@ void usb_set_rtc(uint8_t *buf) {
 /******************************************************************************
  * load device id, disk free space and RTC time
  * PROTOCOL:
- *   RESPONSE: <device id> <total sectors> <free sectors> <bytes per sector> YY-MM-DD-HH-mm-ss$OK or $ERROR
+ *   RESPONSE: <device id> <total sectors> <free sectors> <sector size> YY-MM-DD-HH-mm-ss$OK or $ERROR
  *****************************************************************************/
 void usb_load_info(void) {
   uint8_t usb_ret;

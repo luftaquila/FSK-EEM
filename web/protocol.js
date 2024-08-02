@@ -82,7 +82,7 @@ async function cmd_set_rtc() {
  * load device id, disk free space and RTC time
  *
  * PROTOCOL:
- *   RESPONSE: <device id> <total sectors> <free sectors> <bytes per sector> YY-MM-DD-HH-mm-ss$OK or $ERROR
+ *   RESPONSE: <device id> <total sectors> <free sectors> <sector size> YY-MM-DD-HH-mm-ss$OK or $ERROR
  *****************************************************************************/
 async function cmd_load_info() {
   if (!await check_connection()) {
