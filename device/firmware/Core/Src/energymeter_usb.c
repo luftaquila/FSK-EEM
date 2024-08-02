@@ -178,6 +178,7 @@ flash_err:
  * set commanded RTC time
  * PROTOCOL:
  *      QUERY: YY-MM-DD-HH-mm-ss
+ *   RESPONSE: $OK or $ERROR
  *****************************************************************************/
 void usb_set_rtc(uint8_t *buf) {
   uint8_t usb_ret;
