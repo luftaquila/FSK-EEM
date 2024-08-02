@@ -121,6 +121,14 @@ void mode_usb(void) {
       usb_load_one(UserRxBufferFS + strlen(cmd[CMD_LOAD_ONE]) + 1);
     }
 
+    else if (USB_COMMAND(CMD_DELETE_ALL)) {
+      usb_delete_all();
+    }
+
+    else if (USB_COMMAND(CMD_DELETE_ONE)) {
+      usb_delete_one(UserRxBufferFS + strlen(cmd[CMD_DELETE_ONE]) + 1);
+    }
+
     usb_flag = FALSE;
   }
 }
