@@ -243,7 +243,7 @@ async function transceive(query, end) {
     writer.releaseLock();
   } catch (e) {
     writer.releaseLock();
-    error("명령 전송 실패", `query: ${query}<br>error: ${e}`);
+    error("명령 전송 실패", `cmd: ${query}<br>error: ${e}`);
     return false;
   }
 
@@ -278,11 +278,17 @@ async function transceive(query, end) {
     }
   } catch (e) {
     reader.releaseLock();
-    error("명령 응답 수신 실패", `query: ${query}<br>error: ${e}`);
+    error("명령 응답 수신 실패", `cmd: ${query}<br>error: ${e}`);
     return false;
   }
 
   reader.releaseLock();
+
+  if (receive.text.includes(RESP.ERROR)) {
+    error("장치 오류", `cmd: ${query}<br>response: ${receive.text}`);
+    return false;
+  }
+
   receive.time = new Date() - receive.time;
   receive.speed = (receive.bytes.length / 1024) / receive.time * 1000;
   return receive;
