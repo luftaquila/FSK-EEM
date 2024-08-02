@@ -24,6 +24,9 @@ const RESP = {
 const USB_VID = 0x1999;
 const USB_PID = 0x0512;
 
+const DEVICE_ID_INVALID = 0xFFFF;
+const DEVICE_ID_BROADCAST = 0xFFFE;
+
 const QUERY_TIMEOUT = 500;
 
 /******************************************************************************
@@ -35,12 +38,12 @@ const QUERY_TIMEOUT = 500;
  *      QUERY: 5-byte decimal integer string(00000 ~ 65535) for a new device id
  *   RESPONSE: $OK or $ERROR
  *****************************************************************************/
-async function cmd_set_id(new_id) {
+async function cmd_set_id(id) {
   if (!await check_connection()) {
     return false;
   }
 
-  let query = `${CMD.SET_ID} ${String(new_id).padStart(5, '0')}`
+  let query = `${CMD.SET_ID} ${String(id).padStart(5, '0')}`
   let res = await transceive(query, RESP.OK);
 
   if (!res) {
@@ -120,6 +123,8 @@ async function cmd_load_list() {
 
   toastr.success('파일 목록 수신 완료');
   ui_load_list(res);
+
+  await cmd_load_info();
 }
 
 /******************************************************************************

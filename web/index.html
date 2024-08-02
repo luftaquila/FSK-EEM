@@ -1,37 +1,98 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<meta property="og:title" content="FSK-EEM Console"/>
-		<meta property="og:url" content="https://fsk-eem.luftaquila.io"/>
-		<meta property="og:description" content="FSK-EEM Console"/>
 
-    <title>FSK-EEM Console</title>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+  <meta property="og:title" content="FSK-EEM Console" />
+  <meta property="og:url" content="https://fsk-eem.luftaquila.io" />
+  <meta property="og:description" content="FSK-EEM Console" />
 
-    <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
+  <title>FSK-EEM Console</title>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.12.4/sweetalert2.min.css" integrity="sha512-WxRv0maH8aN6vNOcgNFlimjOhKp+CUqqNougXbz0E+D24gP5i+7W/gcc5tenxVmr28rH85XHF5eXehpV2TQhRg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css" integrity="sha512-3pIirOrwegjM6erE5gPSwkUzO+3cTjpnV9lexlNZqvupR64iZBnOOTiiLPb9M36zpMScbmUNIcHUqKD47M719g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="btn.css">
-    <link rel="stylesheet" href="style.css">
-  </head>
-  <body>
-    <button id="connect">connect</button>
-    <button id="load-list">load-list</button>
-    <button id="load-all">load-all</button>
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
 
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js" integrity="sha512-Qlv6VSKh1gDKGoJbnyA5RMXYcvnpIqhO++MhIM2fStMcGT9i2T//tSwYFlcyoRRDcDZ+TYHpH8azBBCyhpSeqw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.12.4/sweetalert2.all.min.js" integrity="sha512-aRyxRCMzAorfKGjEjnSeGTVKrI/2irvvR5DI38LV/JXOkL9VLnZ+rfFkD9i1UTWTB8e8W5vpf7SjDsfMOdNosg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+    integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.12.4/sweetalert2.min.css"
+    integrity="sha512-WxRv0maH8aN6vNOcgNFlimjOhKp+CUqqNougXbz0E+D24gP5i+7W/gcc5tenxVmr28rH85XHF5eXehpV2TQhRg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css"
+    integrity="sha512-3pIirOrwegjM6erE5gPSwkUzO+3cTjpnV9lexlNZqvupR64iZBnOOTiiLPb9M36zpMScbmUNIcHUqKD47M719g=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="btn.css">
+  <link rel="stylesheet" href="style.css">
+</head>
 
-    <script src="strings.js"></script>
-    <script src="ui.js"></script>
-    <script src="protocol.js"></script>
-    <script src="script.js"></script>
-  </body>
+<body>
+  <div id='container'>
+    <article>
+      <h1><i class="fa-fw fa-solid fa-cash-register"></i>에너지미터 관리</h1>
+      <div class="content">
+        <div>
+          <h2><i class="fa-fw fa-solid fa-circle-info"></i>장치 정보</h2>
+          <div class="section">
+            <div>
+              <span id="connect" class='btn blue'><i class="fa-fw fa-brands fa-usb"></i>장치 연결</span>
+              <span id="set-id" class='btn orange'><i class="fa-fw fa-solid fa-car-side"></i>ID 설정</span>
+              <span id="set-rtc" class='btn orange'><i class="fa-fw fa-regular fa-clock"></i>시계 동기화</span>
+            </div>
+            <div style="margin-top: 1rem;">
+              <span class="device-info">
+                <i id="connection" class="fa-fw fa-solid fa-circle" style="color: red;"></i>
+                ID: <span id="device-id">N/A</span>
+              </span>
+              <span class="device-info">
+                <i class="fa-fw fa-solid fa-sd-card"></i>
+                <span id="storage-free">- GB</span> / <span id="storage-total">- GB</span>
+                &ensp;(<span id="storage-percent">-</span> %)
+              </span>
+              <span class="device-info">
+                <i class="fa-fw fa-solid fa-clock"></i>
+                <span id="device-clock">N/A</span>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top: 1rem;">
+        </div>
+        <div style="margin-top: 1rem;">
+          <h2><i class="fa-fw fa-solid fa-file-waveform"></i>로그 파일 관리</h2>
+          <div class="section">
+            <div>
+              <span id="load-list" class='btn green'><i class="fa-fw fa-solid fa-arrows-rotate"></i>새로고침</span>
+              <span id="load-all" class='btn green'><i class="fa-fw fa-solid fa-file-arrow-down"></i>전체 다운로드</span>
+              <span id="delete-all" class='btn red'><i class="fa-fw fa-regular fa-trash-can"></i>전체 삭제</span>
+            </div>
+            <div>
+              <table id="file-list">
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+    integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"
+    integrity="sha512-Qlv6VSKh1gDKGoJbnyA5RMXYcvnpIqhO++MhIM2fStMcGT9i2T//tSwYFlcyoRRDcDZ+TYHpH8azBBCyhpSeqw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.12.4/sweetalert2.all.min.js"
+    integrity="sha512-aRyxRCMzAorfKGjEjnSeGTVKrI/2irvvR5DI38LV/JXOkL9VLnZ+rfFkD9i1UTWTB8e8W5vpf7SjDsfMOdNosg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"
+    integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <script src="strings.js"></script>
+  <script src="ui.js"></script>
+  <script src="protocol.js"></script>
+  <script src="script.js"></script>
+</body>
+
 </html>
