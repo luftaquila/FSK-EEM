@@ -176,9 +176,18 @@ flash_err:
 
 /******************************************************************************
  * set commanded RTC time
+ * PROTOCOL:
+ *      QUERY: YY-MM-DD-HH-mm-ss
  *****************************************************************************/
 void usb_set_rtc(uint8_t *buf) {
-  // TODO
+  uint8_t usb_ret;
+
+  if (rtc_set(buf) != HAL_OK) {
+    USB_RESPONSE(RESP_ERROR);
+    return;
+  };
+
+  USB_RESPONSE(RESP_OK);
 }
 
 /******************************************************************************
@@ -205,7 +214,7 @@ void usb_load_info(void) {
   uint32_t sector_free = free * fs->csize;
 
   datetime cur;
-  rtc_read(&cur);
+  (void)rtc_read(&cur); // ignore failure; will be shown at the host
 
   sprintf((char *)UserTxBufferFS, "%05lu %lu %lu %u %02d-%02d-%02d-%02d-%02d-%02d",
           devid->id, sector_total, sector_free, _MAX_SS,

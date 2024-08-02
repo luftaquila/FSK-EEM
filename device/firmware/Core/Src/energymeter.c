@@ -40,7 +40,10 @@ char debug_buffer[MAX_LEN_DEBUG_STR];
 void mode_energymeter(void) {
   /* read boot time */
   datetime boot;
-  rtc_read(&boot);
+
+  if (rtc_read(&boot) != HAL_OK) {
+    // TODO
+  }
 
   /* read device id from the flash */
   device_id_t *devid = (device_id_t *)FLASH_TARGET_PAGE;
@@ -192,14 +195,64 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
 }
 
 /******************************************************************************
- * RTC read current datetime
+ * RTC set current datetime
+ * buf should be formatted to YY-MM-DD-HH-mm-ss, and have one more byte space at the end
  *****************************************************************************/
-void rtc_read(datetime *time) {
+HAL_StatusTypeDef rtc_set(uint8_t *buf) {
   RTC_DateTypeDef rtc_date;
   RTC_TimeTypeDef rtc_time;
 
-  HAL_RTC_GetTime(&hrtc, &rtc_time, FORMAT_BIN);
-  HAL_RTC_GetDate(&hrtc, &rtc_date, FORMAT_BIN);
+  *(buf + 2) = '\0';
+  rtc_date.Year = (uint8_t)strtol((char *)buf, (char **)&buf, 10);
+  buf++;
+
+  // NOTE: Month should be decoded as hex, because of the BCD format
+  *(buf + 2) = '\0';
+  rtc_date.Month = (uint8_t)strtol((char *)buf, (char **)&buf, 16);
+  buf++;
+
+  *(buf + 2) = '\0';
+  rtc_date.Date = (uint8_t)strtol((char *)buf, (char **)&buf, 10);
+  buf++;
+
+  *(buf + 2) = '\0';
+  rtc_time.Hours = (uint8_t)strtol((char *)buf, (char **)&buf, 10);
+  buf++;
+
+  *(buf + 2) = '\0';
+  rtc_time.Minutes = (uint8_t)strtol((char *)buf, (char **)&buf, 10);
+  buf++;
+
+  *(buf + 2) = '\0';
+  rtc_time.Seconds = (uint8_t)strtol((char *)buf, (char **)&buf, 10);
+  
+  // will be automatically calculated
+  rtc_date.WeekDay = 0;
+
+  if (HAL_RTC_SetTime(&hrtc, &rtc_time, FORMAT_BIN) != HAL_OK) {
+    return HAL_ERROR;
+  }
+
+  if (HAL_RTC_SetDate(&hrtc, &rtc_date, FORMAT_BIN) != HAL_OK) {
+    return HAL_ERROR;
+  }
+
+  return HAL_OK;
+}
+/******************************************************************************
+ * RTC read current datetime
+ *****************************************************************************/
+HAL_StatusTypeDef rtc_read(datetime *time) {
+  RTC_DateTypeDef rtc_date;
+  RTC_TimeTypeDef rtc_time;
+
+  if (HAL_RTC_GetTime(&hrtc, &rtc_time, FORMAT_BIN) != HAL_OK) {
+    return HAL_ERROR;
+  }
+
+  if (HAL_RTC_GetDate(&hrtc, &rtc_date, FORMAT_BIN) != HAL_OK) {
+    return HAL_ERROR;
+  }
 
   time->second = rtc_time.Seconds;
   time->minute = rtc_time.Minutes;
@@ -208,5 +261,5 @@ void rtc_read(datetime *time) {
   time->month = rtc_date.Month;
   time->year = rtc_date.Year;
 
-  return;
+  return HAL_OK;
 }
