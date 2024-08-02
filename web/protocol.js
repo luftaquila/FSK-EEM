@@ -173,7 +173,7 @@ async function cmd_load_one(filename) {
   }
 
   toastr.success('파일 데이터 수신 완료');
-  ui_load_one(res);
+  ui_load_one(res, filename);
 }
 
 /******************************************************************************
@@ -288,6 +288,9 @@ async function transceive(query, end, timeout = QUERY_TIMEOUT) {
     return false;
   }
 
+  receive.time = new Date() - receive.time;
+  receive.speed = (receive.bytes.length / 1024) / receive.time * 1000;
+
   reader.releaseLock();
 
   if (receive.text.includes(RESP.ERROR)) {
@@ -295,7 +298,5 @@ async function transceive(query, end, timeout = QUERY_TIMEOUT) {
     return false;
   }
 
-  receive.time = new Date() - receive.time;
-  receive.speed = (receive.bytes.length / 1024) / receive.time * 1000;
   return receive;
 }

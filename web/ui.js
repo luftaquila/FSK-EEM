@@ -153,7 +153,7 @@ function ui_load_list(res) {
       return;
     }
 
-    table.insert({ data: [[ name, format_byte(size), name ]] });
+    table.insert({ data: [[name, format_byte(size), name]] });
   });
 }
 
@@ -161,16 +161,108 @@ function ui_load_list(res) {
  * $LOAD-ALL response UI handler
  *****************************************************************************/
 function ui_load_all(res) {
-  console.log(res);
-  // TODO
+  const resp_file_entry = Uint8Array.from(Array.from(RESP.FILE_ENTRY).map(ch => ch.charCodeAt(0)));
+
+  let zip = new JSZip();
+  let cnt = 0;
+
+  let i = 0;
+
+  while (i < res.bytes.length) {
+    // find $FILE-ENTRY cmd
+    if (res.bytes[i] === "$".charCodeAt(0) && i + resp_file_entry.length < res.bytes.length) {
+      let match = true;
+
+      for (let j = 0; j < resp_file_entry.length; j++) {
+        if (res.bytes[i + j] !== resp_file_entry[j]) {
+          match = false;
+          break;
+        }
+      }
+
+      // found $FILE-ENTRY
+      if (match) {
+        i += resp_file_entry.length + 1;
+        let j = i + 1;
+
+        // find next space
+        while (res.bytes[j] !== " ".charCodeAt(0)) {
+          j++;
+        }
+
+        // read file size
+        let size = Number(String.fromCharCode(...res.bytes.slice(i, j)));
+
+        // file name start point
+        i = j + 1;
+        j = i + 1;
+
+        // find next space
+        while (res.bytes[j] !== " ".charCodeAt(0)) {
+          j++;
+        }
+
+        // read filename
+        let filename = String.fromCharCode(...res.bytes.slice(i, j));
+
+        // file data start point
+        i = j + 1;
+
+        let blob = new Blob([new Uint8Array(res.bytes.slice(i, i + size))], { type: "application/octet-stream" });
+        zip.file(filename, blob);
+        cnt++;
+      }
+    }
+
+    i++;
+  }
+
+  if (cnt) {
+    zip.generateAsync({ type: "blob" })
+      .then(blob => {
+        saveAs(blob, "log.zip");
+      });
+  }
 }
 
 /******************************************************************************
  * $LOAD-ONE response UI handler
  *****************************************************************************/
-function ui_load_one(res) {
-  console.log(res);
-  // TODO
+function ui_load_one(res, filename) {
+  console.log(filename)
+  const resp_file_entry = Uint8Array.from(Array.from(RESP.FILE_START).map(ch => ch.charCodeAt(0)));
+
+  let i = 0;
+  let match = true;
+
+  for (let j = 0; j < resp_file_entry.length; j++) {
+    if (res.bytes[i + j] !== resp_file_entry[j]) {
+      match = false;
+      break;
+    }
+  }
+
+  if (!match) {
+    error("데이터 손상", "수신한 데이터가 손상되었습니다.");
+    return;
+  }
+
+  i += resp_file_entry.length + 1;
+  let j = i + 1;
+
+  // find next space
+  while (res.bytes[j] !== " ".charCodeAt(0)) {
+    j++;
+  }
+
+  // read file size
+  let size = Number(String.fromCharCode(...res.bytes.slice(i, j)));
+
+  // file data start point
+  i = j + 1;
+
+  let blob = new Blob([new Uint8Array(res.bytes.slice(i, i + size))], { type: "application/octet-stream" });
+  saveAs(blob, filename);
 }
 
 /******************************************************************************
