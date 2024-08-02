@@ -65,7 +65,7 @@ async function cmd_set_rtc() {
     return false;
   }
 
-  let query = `${CMD.SET_RTC} ${new Date().format('yyyy-mm-dd-hh-MM-ss')}`;
+  let query = `${CMD.SET_RTC} ${new Date().format('yy-mm-dd-hh-MM-ss')}`;
   let res = await transceive(query, RESP.OK);
 
   if (!res) {
