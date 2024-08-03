@@ -76,15 +76,20 @@ void mode_usb(void) {
   (void)f_setlabel(VOLUME_LABEL);
 
   uint32_t tick = HAL_GetTick();
+  HAL_GPIO_TogglePin(LED_STATUS_GPIO_Port, LED_STATUS_Pin);
 
   // we don't need to be super fast here.
   // let's just play with strings and busy wait led blink
   while (1) {
+    // blink led
     static uint32_t cur = 0;
+    static uint32_t blink_fast = FALSE;
+
     cur = HAL_GetTick();
 
-    if (tick + 500 < cur) {
+    if ((blink_fast && (tick + 100 < cur)) || (!blink_fast && (tick + 500 < cur))) {
       tick = cur;
+      blink_fast = !blink_fast;
       HAL_GPIO_TogglePin(LED_STATUS_GPIO_Port, LED_STATUS_Pin);
     }
 
