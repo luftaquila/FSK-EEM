@@ -1,6 +1,11 @@
 let port = undefined;
 let connection = false;
 
+let files = {
+  list: [],
+  total: 0,
+};
+
 /******************************************************************************
  * Prompt target device and open it
  *****************************************************************************/
@@ -129,6 +134,9 @@ function ui_load_list(res) {
     return x.split(' ');
   });
 
+  files.list = [];
+  files.total = 0;
+
   // clear the table
   table.data.data = [];
 
@@ -140,7 +148,7 @@ function ui_load_list(res) {
 
   res.forEach(x => {
     let resp = x[0];
-    let size = x[1];
+    let size = Number(x[1]);
     let name = x[2];
 
     if (`$${resp}` !== RESP.FILE_ENTRY || x.length !== 3) {
@@ -153,7 +161,9 @@ function ui_load_list(res) {
       return;
     }
 
+    files.total += size;
     table.insert({ data: [[name, format_byte(size), name]] });
+    files.list.push({ name: name, size: size });
   });
 }
 
@@ -262,6 +272,26 @@ function ui_load_one(res, filename) {
 
   let blob = new Blob([new Uint8Array(res.bytes.slice(i, i + size))], { type: "application/octet-stream" });
   saveAs(blob, filename);
+}
+
+/******************************************************************************
+ * Download information toast
+ *****************************************************************************/
+function ui_info_download(size) {
+  let speed = 0;
+
+  if (size < 20 * 1024) {
+    speed = 120 * 1024; // < 20 KB
+  } else if (size < 100 * 1024) {
+    speed = 80 * 1024; // < 150 KB
+  } else if (size < 300 * 1024) {
+    speed = 40 * 1024; // < 300 KB
+  } else {
+    speed = 30 * 1024; // > 300 KB
+  }
+
+  toastr.info(`예상 다운로드 용량: ${format_byte(size)}<br>예상 다운로드 시간: ${(size / speed).toFixed(0)} s`);
+  toastr.info(html_strings.download_info);
 }
 
 /******************************************************************************

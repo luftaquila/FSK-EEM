@@ -141,6 +141,8 @@ async function cmd_load_all() {
     return false;
   }
 
+  ui_info_download(files.total);
+
   let res = await transceive(CMD.LOAD_ALL, RESP.OK, QUERY_TIMEOUT_LONG);
 
   if (!res) {
@@ -164,6 +166,8 @@ async function cmd_load_one(filename) {
   if (!await check_connection()) {
     return false;
   }
+
+  ui_info_download(files.list.find(x => x.name === filename).size);
 
   let query = `${CMD.LOAD_ONE} ${filename.length} ${filename}`;
   let res = await transceive(query, RESP.FILE_END, QUERY_TIMEOUT_LONG);
@@ -304,6 +308,7 @@ async function transceive(query, end, timeout = QUERY_TIMEOUT) {
 
   document.getElementById("bytes-downloaded").innerText = format_byte(receive.bytes.length);
   document.getElementById("link-speed").innerText = format_byte(receive.speed);
+  document.getElementById("time-spent").innerText = (receive.time / 1000).toFixed(1);
 
   return receive;
 }
