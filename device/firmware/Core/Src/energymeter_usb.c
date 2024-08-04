@@ -15,6 +15,7 @@
 uint32_t usb_flag = FALSE;
 extern uint8_t UserRxBufferFS[];
 extern uint8_t UserTxBufferFS[];
+uint8_t UserTxBufferFS_2[APP_TX_DATA_SIZE];
 
 /* USB CDC command from the host system */
 typedef enum {
@@ -298,6 +299,7 @@ void usb_load_all(void) {
   }
 
   FRESULT ret;
+  uint32_t use_primary = TRUE;
 
   do {
     sprintf((char *)UserTxBufferFS, "%s %lu %s ", resp[RESP_FILE_ENTRY], fno.fsize, fno.lfname);
@@ -315,13 +317,18 @@ void usb_load_all(void) {
     while (total_read < f_size(&fp)) {
       uint32_t read;
 
-      if (f_read(&fp, UserTxBufferFS, APP_TX_DATA_SIZE, (UINT *)&read) != FR_OK) {
+      // switch buffers to speed up
+      uint8_t *buf = use_primary ? UserTxBufferFS : UserTxBufferFS_2;
+
+      if (f_read(&fp, buf, APP_TX_DATA_SIZE, (UINT *)&read) != FR_OK) {
         USB_RESPONSE(RESP_ERROR);
         return;
       }
 
       total_read += read;
-      USB_Transmit(UserTxBufferFS, read);
+      USB_Transmit(buf, read);
+
+      use_primary = !use_primary;
     }
 
     USB_RESPONSE(RESP_FILE_END);
@@ -361,17 +368,31 @@ void usb_load_one(uint8_t *buf) {
   USB_Transmit(UserTxBufferFS, strlen((const char *)UserTxBufferFS));
 
   uint32_t total_read = 0;
+  uint32_t use_primary = TRUE;
 
+
+  // it took ~700 ms to send first 100 KB.  140 KB/s
+  // it took ~1900 ms to send next 100 KB.  55 KB/s
+  // it took ~3300 ms to send third 100 KB. 30 KB/s
   while (total_read < f_size(&fp)) {
     uint32_t read;
 
-    if (f_read(&fp, UserTxBufferFS, APP_TX_DATA_SIZE, (UINT *)&read) != FR_OK) {
+    // switch buffers to speed up
+    uint8_t *buf = use_primary ? UserTxBufferFS : UserTxBufferFS_2;
+
+    // f_read took typically 6 ms
+    if (f_read(&fp, buf, APP_TX_DATA_SIZE, (UINT *)&read) != FR_OK) {
       USB_RESPONSE(RESP_ERROR);
       return;
     }
 
     total_read += read;
-    USB_Transmit(UserTxBufferFS, read);
+
+    // USB_Transmit normally took 0 ms.
+    // but after first 100 KB sent, once at a fifth, it took avg 130 ms.
+    // so, in avg of total, it took 25 ms
+    USB_Transmit(buf, read);
+    use_primary = !use_primary;
   }
 
   USB_RESPONSE(RESP_FILE_END);
