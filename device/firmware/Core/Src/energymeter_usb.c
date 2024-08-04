@@ -370,6 +370,11 @@ void usb_load_one(uint8_t *buf) {
   uint32_t total_read = 0;
   uint32_t use_primary = TRUE;
 
+  uint32_t spist, spifin, usbfin;
+  uint32_t arr[300];
+  uint32_t i = 0;
+
+  uint32_t start;
 
   // it took ~700 ms to send first 100 KB.  140 KB/s
   // it took ~1900 ms to send next 100 KB.  55 KB/s
@@ -380,11 +385,15 @@ void usb_load_one(uint8_t *buf) {
     // switch buffers to speed up
     uint8_t *buf = use_primary ? UserTxBufferFS : UserTxBufferFS_2;
 
+    spist = HAL_GetTick();
+
     // f_read took typically 6 ms
     if (f_read(&fp, buf, APP_TX_DATA_SIZE, (UINT *)&read) != FR_OK) {
       USB_RESPONSE(RESP_ERROR);
       return;
     }
+
+    spifin = HAL_GetTick();
 
     total_read += read;
 
@@ -392,8 +401,23 @@ void usb_load_one(uint8_t *buf) {
     // but after first 100 KB sent, once at a fifth, it took avg 130 ms.
     // so, in avg of total, it took 25 ms
     USB_Transmit(buf, read);
+
+    usbfin = HAL_GetTick();
+
+    if (i < 300) {
+      arr[i] = usbfin - spifin;
+    }
+    i++;
+
     use_primary = !use_primary;
   }
+
+  USB_Transmit("dmp", 3);
+  for (i = 0; i < 300; i++) {
+    sprintf(UserTxBufferFS + i * 5, "%04d ", arr[i]);
+  }
+  USB_Transmit(UserTxBufferFS, 1500);
+  USB_Transmit("fin", 3);
 
   USB_RESPONSE(RESP_FILE_END);
 }
