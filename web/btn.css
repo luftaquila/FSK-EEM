@@ -69,3 +69,21 @@
 .yellow:hover {
   background-color: #FFDE29!important;
 }
+
+.pink {
+  background-color: #ff69b4!important;
+  box-shadow: 0px 5px 0px 0px #ff4da6!important;
+}
+
+.pink:hover {
+  background-color: #ff85c1!important;
+}
+
+.mint {
+  background-color: #3eb489!important;
+  box-shadow: 0px 5px 0px 0px #339e76!important;
+}
+
+.mint:hover {
+  background-color: #59d1a1!important;
+}
