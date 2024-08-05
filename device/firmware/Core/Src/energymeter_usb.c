@@ -1,20 +1,26 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "ff.h"
-#include "usbd_cdc_if.h"
+#include "tusb.h"
 
 #include "energymeter.h"
 #include "energymeter_usb.h"
+
+#define APP_TX_DATA_SIZE 1024
+#define APP_RX_DATA_SIZE 1024
 
 /******************************************************************************
  * global variables
  *****************************************************************************/
 /* USB CDC receive flag and buffer */
 uint32_t usb_flag = FALSE;
-extern uint8_t UserRxBufferFS[];
-extern uint8_t UserTxBufferFS[];
+// extern uint8_t UserRxBufferFS[];
+// extern uint8_t UserTxBufferFS[];
+uint8_t UserRxBufferFS[APP_RX_DATA_SIZE];
+uint8_t UserTxBufferFS[APP_TX_DATA_SIZE];
 uint8_t UserTxBufferFS_2[APP_TX_DATA_SIZE];
 
 /* USB CDC command from the host system */
@@ -79,9 +85,14 @@ void mode_usb(void) {
   uint32_t tick = HAL_GetTick();
   HAL_GPIO_TogglePin(LED_STATUS_GPIO_Port, LED_STATUS_Pin);
 
+  // TinyUSB init
+  tusb_init();
+
   // we don't need to be super fast here.
   // let's just play with strings and busy wait led blink
   while (1) {
+    tud_task();
+
     // blink led
     static uint32_t cur = 0;
     static uint32_t blink_fast = FALSE;

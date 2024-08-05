@@ -6,8 +6,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "usbd_cdc_if.h"
-
 /******************************************************************************
  * basic definitions
  *****************************************************************************/
@@ -168,11 +166,11 @@ typedef enum {
  * USB CDC transmit macro
  *****************************************************************************/
 #define USB_Transmit(buf, len)             \
-  {                                        \
+  /*{                                        \
     do {                                   \
       usb_ret = CDC_Transmit_FS(buf, len); \
     } while (usb_ret == USBD_BUSY);        \
-  }
+  }*/
 
 /******************************************************************************
  * debug configuration

@@ -28,7 +28,7 @@ endif
 ifeq ($(DEBUG), 1)
 OPT = -Og
 else
-OPT = -O2
+OPT = -Os
 endif
 
 
@@ -54,6 +54,9 @@ Core/Src/rtc.c \
 Core/Src/spi.c \
 Core/Src/tim.c \
 Core/Src/usart.c \
+Core/Src/usb.c \
+Core/Src/usb_descriptors.c \
+Core/Src/msc_disk.c \
 Core/Src/stm32f1xx_it.c \
 Core/Src/stm32f1xx_hal_msp.c \
 FATFS/Target/user_diskio.c \
@@ -90,7 +93,33 @@ Middlewares/Third_Party/FatFs/src/option/syscall.c \
 Middlewares/Third_Party/FatFs/src/option/ccsbcs.c \
 Core/Src/sysmem.c \
 Core/Src/syscalls.c \
-Core/Src/usb.c
+tinyusb/src/common/tusb_fifo.c \
+tinyusb/src/typec/usbc.c \
+tinyusb/src/class/cdc/cdc_rndis_host.c \
+tinyusb/src/class/cdc/cdc_host.c \
+tinyusb/src/class/cdc/cdc_device.c \
+tinyusb/src/class/video/video_device.c \
+tinyusb/src/class/net/ncm_device.c \
+tinyusb/src/class/net/ecm_rndis_device.c \
+tinyusb/src/class/dfu/dfu_rt_device.c \
+tinyusb/src/class/dfu/dfu_device.c \
+tinyusb/src/class/midi/midi_device.c \
+tinyusb/src/class/usbtmc/usbtmc_device.c \
+tinyusb/src/class/bth/bth_device.c \
+tinyusb/src/class/audio/audio_device.c \
+tinyusb/src/class/msc/msc_host.c \
+tinyusb/src/class/msc/msc_device.c \
+tinyusb/src/class/hid/hid_device.c \
+tinyusb/src/class/hid/hid_host.c \
+tinyusb/src/class/vendor/vendor_host.c \
+tinyusb/src/class/vendor/vendor_device.c \
+tinyusb/src/device/usbd_control.c \
+tinyusb/src/device/usbd.c \
+tinyusb/src/tusb.c \
+tinyusb/src/host/hub.c \
+tinyusb/src/host/usbh.c \
+tinyusb/src/portable/st/typec/typec_stm32.c \
+tinyusb/src/portable/st/stm32_fsdev/dcd_stm32_fsdev.c
 
 # ASM sources
 ASM_SOURCES =  \
@@ -157,7 +186,9 @@ C_INCLUDES =  \
 -IDrivers/STM32F1xx_HAL_Driver/Inc/Legacy \
 -IMiddlewares/Third_Party/FatFs/src \
 -IDrivers/CMSIS/Device/ST/STM32F1xx/Include \
--IDrivers/CMSIS/Include
+-IDrivers/CMSIS/Include \
+-Itinyusb/src \
+-Itinyusb/hw
 
 
 # compile gcc flags
