@@ -470,7 +470,7 @@ inline DRESULT USER_SPI_write (
 inline DRESULT USER_SPI_ioctl (
 	BYTE drv,		/* Physical drive number (0) */
 	BYTE cmd,		/* Control command code */
-	void *buff		/* Pointer to the conrtol data */
+	void *buff		/* Pointer to the control data */
 )
 {
 	DRESULT res;

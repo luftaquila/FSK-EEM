@@ -64,7 +64,10 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+int _write(int file, uint8_t *ptr, int len) {
+  HAL_UART_Transmit(&huart3, (uint8_t *)ptr, (uint16_t)len, 100);
+  return (len);
+}
 /* USER CODE END 0 */
 
 /**
@@ -103,9 +106,9 @@ int main(void)
   MX_SPI1_Init();
   MX_SPI2_Init();
   MX_TIM1_Init();
-  MX_USART1_UART_Init();
   MX_FATFS_Init();
   MX_USB_PCD_Init();
+  MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
   /* USER CODE END 2 */
 

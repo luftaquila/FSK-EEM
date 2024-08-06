@@ -9,19 +9,11 @@
 #include "energymeter.h"
 #include "energymeter_usb.h"
 
-#define APP_TX_DATA_SIZE 1024
-#define APP_RX_DATA_SIZE 1024
-
 /******************************************************************************
  * global variables
  *****************************************************************************/
 /* USB CDC receive flag and buffer */
 uint32_t usb_flag = FALSE;
-// extern uint8_t UserRxBufferFS[];
-// extern uint8_t UserTxBufferFS[];
-uint8_t UserRxBufferFS[APP_RX_DATA_SIZE];
-uint8_t UserTxBufferFS[APP_TX_DATA_SIZE];
-uint8_t UserTxBufferFS_2[APP_TX_DATA_SIZE];
 
 /* USB CDC command from the host system */
 typedef enum {
@@ -109,6 +101,7 @@ void mode_usb(void) {
       continue;
     }
 
+#ifdef DISABLED
     /**************************************************************************
      * PROTOCOL: CMD string (starts with $) +
      *           one space (ASCII 0x20), if additional parameter(s) exist +
@@ -145,11 +138,13 @@ void mode_usb(void) {
     else if (USB_COMMAND(CMD_DELETE_ONE)) {
       usb_delete_one(UserRxBufferFS + strlen(cmd[CMD_DELETE_ONE]) + 1);
     }
+#endif
 
     usb_flag = FALSE;
   }
 }
 
+#ifdef DISABLED
 /******************************************************************************
  * set commanded device id to flash
  * PROTOCOL:
@@ -466,3 +461,4 @@ void usb_delete_one(uint8_t *buf) {
 
   USB_RESPONSE(RESP_OK);
 }
+#endif
