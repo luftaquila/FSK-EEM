@@ -300,4 +300,10 @@ else
 	$(PREFIX)objdump -dS ./build/firmware.elf > dump.txt
 endif
 
+#######################################
+# list usb devices (Windows PowerShell)
+#######################################
+list:
+	pwsh -Command 'Get-PnpDevice -PresentOnly | Where-Object { $$_.InstanceId -match "^USB" }'
+
 # *** EOF ***
